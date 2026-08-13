@@ -1,0 +1,18 @@
+# API and configuration
+fastapi==0.115.9
+uvicorn[standard]==0.34.2
+pydantic-settings==2.8.1
+python-multipart==0.0.20
+
+# RAG pipeline
+chromadb==1.0.12
+ollama==0.4.8
+pypdf==5.5.0
+
+# Application data
+psycopg[binary]==3.2.6
+sqlalchemy==2.0.40
+
+# Development and testing
+pytest==8.3.5
+httpx==0.28.1

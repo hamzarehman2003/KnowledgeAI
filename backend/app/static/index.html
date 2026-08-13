@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KnowledgeAI — Pipeline Test Console</title>
+<style>
+  :root {
+    --bg: #0b0f16;
+    --panel: #131926;
+    --panel-2: #1a2233;
+    --line: #253048;
+    --text: #e6edf7;
+    --muted: #8b9ab4;
+    --accent: #4d9fff;
+    --accent-dim: #1e3a5f;
+    --ok: #3fb950;
+    --warn: #d29922;
+    --err: #f85149;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; border-bottom: 1px solid var(--line);
+    background: var(--panel); position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .spacer { flex: 1; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(63,185,80,.6); }
+  .dot.err { background: var(--err); box-shadow: 0 0 8px rgba(248,81,73,.6); }
+
+  main {
+    display: grid; grid-template-columns: 390px 1fr; gap: 18px;
+    padding: 18px; max-width: 1500px; margin: 0 auto; align-items: start;
+  }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+  }
+  .card h2 {
+    margin: 0; padding: 12px 16px; font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .8px; color: var(--muted);
+    border-bottom: 1px solid var(--line); background: var(--panel-2);
+  }
+  .card .body { padding: 16px; }
+
+  /* ---------- upload ---------- */
+  #drop {
+    border: 1.5px dashed var(--line); border-radius: 8px; padding: 26px 16px;
+    text-align: center; cursor: pointer; transition: .15s; color: var(--muted);
+  }
+  #drop:hover, #drop.over { border-color: var(--accent); background: var(--accent-dim); color: var(--text); }
+  #drop strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
+  #drop small { font-size: 12px; }
+  #file { display: none; }
+
+  .stages { margin-top: 14px; display: none; }
+  .stages.on { display: block; }
+  .stage {
+    display: flex; align-items: center; gap: 9px; padding: 5px 0;
+    font-size: 13px; color: var(--muted);
+  }
+  .stage .mark {
+    width: 16px; height: 16px; border-radius: 50%; flex: none;
+    border: 1.5px solid var(--line); display: grid; place-items: center;
+    font-size: 10px; line-height: 1;
+  }
+  .stage.run .mark { border-color: var(--accent); animation: pulse 1.1s ease-in-out infinite; }
+  .stage.run { color: var(--text); }
+  .stage.done .mark { border-color: var(--ok); color: var(--ok); }
+  .stage.done { color: var(--text); }
+  .stage.fail .mark { border-color: var(--err); color: var(--err); }
+  .stage.fail { color: var(--err); }
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.35 } }
+
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; margin-top: 14px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-family: var(--mono); font-size: 12px; word-break: break-all; }
+
+  .alert {
+    margin-top: 12px; padding: 10px 12px; border-radius: 7px; font-size: 13px;
+    border: 1px solid var(--err); background: rgba(248,81,73,.1); color: #ffb4ae;
+  }
+  .alert.warn { border-color: var(--warn); background: rgba(210,153,34,.1); color: #f0c674; }
+
+  button {
+    font: inherit; cursor: pointer; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--text); padding: 8px 13px; transition: .15s;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #04101f; font-weight: 600; }
+  button.primary:hover:not(:disabled) { filter: brightness(1.12); }
+  button.link {
+    background: none; border: none; color: var(--accent); padding: 0;
+    font-size: 12px; text-decoration: underline;
+  }
+
+  /* ---------- chunk inspector ---------- */
+  #chunks { margin-top: 12px; display: none; }
+  #chunks.on { display: block; }
+  #chunkList { max-height: 260px; overflow-y: auto; margin-top: 8px; }
+  .chunk {
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+    margin-bottom: 6px; font-size: 12px; background: var(--bg);
+  }
+  .chunk .meta { color: var(--muted); font-family: var(--mono); font-size: 11px; margin-bottom: 4px; }
+
+  /* ---------- chat ---------- */
+  #chatCard { display: flex; flex-direction: column; height: calc(100vh - 108px); min-height: 460px; }
+  #thread { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 84%; }
+  .msg.user { align-self: flex-end; }
+  .msg .bubble { padding: 10px 14px; border-radius: 10px; white-space: pre-wrap; }
+  .msg.user .bubble { background: var(--accent-dim); border: 1px solid #2d5a8f; }
+  .msg.bot .bubble { background: var(--panel-2); border: 1px solid var(--line); }
+  .msg.bot.error .bubble { border-color: var(--err); color: #ffb4ae; }
+  .msg .who { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .6px; }
+  .msg.user .who { text-align: right; }
+
+  .cites { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .cite {
+    font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 20px;
+    background: var(--bg); border: 1px solid var(--line); color: var(--muted);
+  }
+  .cite b { color: var(--accent); font-weight: 600; }
+  .foot { margin-top: 7px; font-size: 11px; color: var(--muted); }
+
+  .empty { margin: auto; text-align: center; color: var(--muted); font-size: 13px; max-width: 330px; }
+
+  #composer { border-top: 1px solid var(--line); padding: 12px 16px; background: var(--panel-2); }
+  .row { display: flex; gap: 9px; align-items: flex-end; }
+  textarea {
+    flex: 1; resize: none; font: inherit; padding: 9px 11px; border-radius: 7px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    max-height: 130px; min-height: 40px;
+  }
+  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+  .opts { display: flex; gap: 16px; align-items: center; margin-top: 9px; font-size: 12px; color: var(--muted); }
+  .opts label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  input[type=number] {
+    width: 54px; font: inherit; font-size: 12px; padding: 3px 6px; border-radius: 5px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  }
+  .typing span {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); margin-right: 3px; animation: bounce 1.3s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: .18s; }
+  .typing span:nth-child(3) { animation-delay: .36s; }
+  @keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity:.4 } 30% { transform: translateY(-5px); opacity:1 } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot" id="healthDot"></div>
+  <h1>KnowledgeAI</h1>
+  <span class="sub">Pipeline Test Console</span>
+  <div class="spacer"></div>
+  <span class="sub" id="healthText">checking…</span>
+</header>
+
+<main>
+  <!-- ============ LEFT: document ============ -->
+  <div>
+    <div class="card">
+      <h2>1 · Document</h2>
+      <div class="body">
+        <div id="drop">
+          <strong>Drop a PDF or click to browse</strong>
+          <small>Text-based PDFs only · max 25 MB</small>
+        </div>
+        <input type="file" id="file" accept=".pdf,application/pdf" />
+
+        <div class="stages" id="stages">
+          <div class="stage" data-stage="upload"><span class="mark"></span><span>Uploading &amp; validating</span></div>
+          <div class="stage" data-stage="index"><span class="mark"></span><span>Extract → chunk → embed → index</span></div>
+        </div>
+
+        <div id="docError"></div>
+
+        <dl class="kv" id="docInfo" style="display:none">
+          <dt>File</dt><dd id="iName"></dd>
+          <dt>Doc ID</dt><dd id="iId"></dd>
+          <dt>Size</dt><dd id="iSize"></dd>
+          <dt>Chunks</dt><dd id="iChunks"></dd>
+          <dt>Model</dt><dd id="iModel"></dd>
+        </dl>
+
+        <div id="chunks">
+          <button class="link" id="toggleChunks">Inspect chunks</button>
+          <div id="chunkList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: chat ============ -->
+  <div class="card" id="chatCard">
+    <h2>2 · Ask</h2>
+    <div id="thread">
+      <div class="empty" id="empty">
+        Index a PDF on the left, then ask a question about it.<br /><br />
+        Answers are grounded strictly in retrieved chunks, and every
+        <span class="cite"><b>S1</b></span> chip below an answer is a citation the
+        model actually used.
+      </div>
+    </div>
+    <div id="composer">
+      <div class="row">
+        <textarea id="q" rows="1" placeholder="Ask something about the document…"></textarea>
+        <button class="primary" id="send">Ask</button>
+      </div>
+      <div class="opts">
+        <label>top_k <input type="number" id="topk" value="5" min="1" max="10" /></label>
+        <label><input type="checkbox" id="allDocs" /> Search all documents</label>
+        <button class="link" id="clear" style="margin-left:auto">Clear</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = "/api/v1";
+let docId = null;
+
+const $ = (id) => document.getElementById(id);
+
+/* ---------------- api helper ---------------- */
+async function api(path, options = {}) {
+  let res;
+  try {
+    res = await fetch(path, options);
+  } catch (e) {
+    throw new Error("Cannot reach the backend. Is uvicorn running?");
+  }
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const detail = body && body.detail;
+    throw new Error(
+      typeof detail === "string" ? detail : `Request failed (HTTP ${res.status}).`
+    );
+  }
+  return body;
+}
+
+/* ---------------- health ---------------- */
+(async function health() {
+  try {
+    const h = await api("/health");
+    $("healthDot").className = "dot ok";
+    $("healthText").textContent = h.service + " · online";
+  } catch {
+    $("healthDot").className = "dot err";
+    $("healthText").textContent = "backend unreachable";
+  }
+})();
+
+/* ---------------- stages ---------------- */
+function stage(name, state) {
+  const el = document.querySelector(`[data-stage="${name}"]`);
+  el.className = "stage " + state;
+  el.querySelector(".mark").textContent =
+    state === "done" ? "✓" : state === "fail" ? "✕" : "";
+}
+function resetStages() {
+  $("stages").classList.add("on");
+  ["upload", "index"].forEach((s) => stage(s, ""));
+  $("docError").innerHTML = "";
+}
+function showError(msg, kind = "") {
+  $("docError").innerHTML = `<div class="alert ${kind}"></div>`;
+  $("docError").firstChild.textContent = msg;
+}
+
+/* ---------------- upload + index ---------------- */
+const drop = $("drop"), fileInput = $("file");
+drop.onclick = () => fileInput.click();
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = (e) => {
+  e.preventDefault();
+  drop.classList.remove("over");
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+};
+fileInput.onchange = () => fileInput.files[0] && handleFile(fileInput.files[0]);
+
+async function handleFile(file) {
+  resetStages();
+  $("docInfo").style.display = "none";
+  $("chunks").classList.remove("on");
+  $("chunkList").innerHTML = "";
+
+  if (!file.name.toLowerCase().endsWith(".pdf")) {
+    stage("upload", "fail");
+    return showError("Only .pdf files are accepted.");
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    stage("upload", "fail");
+    return showError("PDF exceeds the 25 MB upload limit.");
+  }
+
+  // --- stage 1: upload ---
+  stage("upload", "run");
+  let uploaded;
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+    uploaded = await api(`${API}/documents/upload`, { method: "POST", body: fd });
+    stage("upload", "done");
+  } catch (e) {
+    stage("upload", "fail");
+    return showError(e.message);
+  }
+
+  docId = uploaded.document_id;
+  $("iName").textContent = uploaded.filename;
+  $("iId").textContent = uploaded.document_id;
+  $("iSize").textContent = (uploaded.size_bytes / 1024).toFixed(1) + " KB";
+  $("iChunks").textContent = "—";
+  $("iModel").textContent = "—";
+  $("docInfo").style.display = "grid";
+
+  // --- stage 2: index (upload alone does not index) ---
+  stage("index", "run");
+  try {
+    const indexed = await api(`${API}/documents/${docId}/index`, { method: "POST" });
+    stage("index", "done");
+    $("iChunks").textContent = indexed.chunk_count;
+    $("iModel").textContent = indexed.embedding_model;
+    $("chunks").classList.add("on");
+    $("empty") && ($("empty").innerHTML =
+      `<strong>${uploaded.filename}</strong> is indexed into ${indexed.chunk_count} chunks.<br />Ask it something.`);
+  } catch (e) {
+    stage("index", "fail");
+    const offline = /unavailable/i.test(e.message);
+    showError(
+      offline ? e.message + " Check that Ollama and ChromaDB are both running." : e.message,
+      offline ? "warn" : ""
+    );
+  }
+}
+
+/* ---------------- chunk inspector ---------------- */
+$("toggleChunks").onclick = async () => {
+  const list = $("chunkList");
+  if (list.innerHTML) { list.innerHTML = ""; $("toggleChunks").textContent = "Inspect chunks"; return; }
+  $("toggleChunks").textContent = "Loading…";
+  try {
+    const data = await api(`${API}/documents/${docId}/chunks`);
+    list.innerHTML = data.chunks.map((c) => `
+      <div class="chunk">
+        <div class="meta">page ${c.page_number} · chunk ${c.chunk_index} · ${c.token_count} tokens</div>
+        <div></div>
+      </div>`).join("");
+    // assign text via textContent so PDF content can never inject markup
+    list.querySelectorAll(".chunk > div:last-child").forEach((el, i) => {
+      el.textContent = data.chunks[i].text;
+    });
+    $("toggleChunks").textContent = "Hide chunks";
+  } catch (e) {
+    list.innerHTML = "";
+    $("toggleChunks").textContent = "Inspect chunks";
+    showError(e.message);
+  }
+};
+
+/* ---------------- chat ---------------- */
+const thread = $("thread"), qBox = $("q");
+
+function addMsg(who, text, { citations = [], count = null, isError = false } = {}) {
+  $("empty")?.remove();
+  const wrap = document.createElement("div");
+  wrap.className = `msg ${who}${isError ? " error" : ""}`;
+
+  const label = document.createElement("div");
+  label.className = "who";
+  label.textContent = who === "user" ? "You" : "KnowledgeAI";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  wrap.append(label, bubble);
+
+  if (citations.length) {
+    const box = document.createElement("div");
+    box.className = "cites";
+    citations.forEach((c) => {
+      const chip = document.createElement("span");
+      chip.className = "cite";
+      chip.innerHTML = `<b></b> page <b></b> · chunk `;
+      chip.children[0].textContent = c.source_id;
+      chip.children[1].textContent = c.page_number;
+      chip.append(String(c.chunk_index));
+      box.append(chip);
+    });
+    wrap.append(box);
+  }
+  if (count !== null) {
+    const foot = document.createElement("div");
+    foot.className = "foot";
+    foot.textContent = citations.length
+      ? `${count} chunks retrieved · ${citations.length} cited`
+      : `${count} chunks retrieved · no citations emitted`;
+    wrap.append(foot);
+  }
+
+  thread.append(wrap);
+  thread.scrollTop = thread.scrollHeight;
+  return wrap;
+}
+
+async function ask() {
+  const question = qBox.value.trim();
+  if (!question) return;
+  qBox.value = "";
+  qBox.style.height = "auto";
+  addMsg("user", question);
+
+  const pending = document.createElement("div");
+  pending.className = "msg bot";
+  pending.innerHTML = `<div class="who">KnowledgeAI</div>
+    <div class="bubble typing"><span></span><span></span><span></span></div>`;
+  thread.append(pending);
+  thread.scrollTop = thread.scrollHeight;
+
+  $("send").disabled = true;
+  try {
+    const payload = {
+      question,
+      top_k: Number($("topk").value) || 5,
+    };
+    if (docId && !$("allDocs").checked) payload.document_id = docId;
+
+    const res = await api(`${API}/chat/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    pending.remove();
+    addMsg("bot", res.answer, {
+      citations: res.citations,
+      count: res.retrieved_chunk_count,
+    });
+  } catch (e) {
+    pending.remove();
+    addMsg("bot", e.message, { isError: true });
+  } finally {
+    $("send").disabled = false;
+    qBox.focus();
+  }
+}
+
+$("send").onclick = ask;
+qBox.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); }
+});
+qBox.addEventListener("input", () => {
+  qBox.style.height = "auto";
+  qBox.style.height = Math.min(qBox.scrollHeight, 130) + "px";
+});
+$("clear").onclick = () => { thread.innerHTML = ""; };
+</script>
+</body>
+</html>

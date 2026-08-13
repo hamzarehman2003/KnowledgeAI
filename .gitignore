@@ -1,0 +1,12 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+data/
+backend/chroma_data/
+backend/uploads/
+.claude/settings.local.json
+
