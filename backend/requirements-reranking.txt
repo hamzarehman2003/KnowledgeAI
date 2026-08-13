@@ -1,0 +1,13 @@
+# Optional cross-encoder reranking stage (app/rag/reranking.py).
+#
+# Kept out of requirements.txt on purpose: this pulls ~2.5 GB of PyTorch plus a
+# ~1.1 GB model, while the base pipeline runs without it. Install only when
+# RERANKING_ENABLED=true.
+#
+# For GPU inference, install torch from the CUDA index first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu126
+# Then:
+#   pip install -r requirements-reranking.txt
+
+torch==2.13.0
+sentence-transformers==5.7.0

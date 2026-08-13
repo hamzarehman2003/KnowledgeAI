@@ -13,6 +13,8 @@ pypdf==5.5.0
 psycopg[binary]==3.2.6
 sqlalchemy==2.0.40
 
+# Optional reranking extras live in requirements-reranking.txt
+
 # Development and testing
 pytest==8.3.5
 httpx==0.28.1
