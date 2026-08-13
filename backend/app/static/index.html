@@ -3,219 +3,380 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KnowledgeAI — Pipeline Test Console</title>
+<title>KnowledgeAI — Document Intelligence</title>
 <style>
   :root {
-    --bg: #0b0f16;
-    --panel: #131926;
-    --panel-2: #1a2233;
-    --line: #253048;
-    --text: #e6edf7;
-    --muted: #8b9ab4;
-    --accent: #4d9fff;
-    --accent-dim: #1e3a5f;
-    --ok: #3fb950;
-    --warn: #d29922;
-    --err: #f85149;
-    --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    --bg:          #fbfaf9;
+    --surface:     #ffffff;
+    --surface-2:   #f6f5f3;
+    --surface-3:   #efedea;
+    --line:        #e6e3de;
+    --line-strong: #d6d2cb;
+    --text:        #1c1917;
+    --text-2:      #57534e;
+    --muted:       #8b857d;
+    --accent:      #0f766e;
+    --accent-hover:#115e57;
+    --accent-soft: #e6f4f1;
+    --accent-line: #99d5cd;
+    --ok:          #15803d;
+    --warn:        #b45309;
+    --err:         #b91c1c;
+    --err-soft:    #fdf0ef;
+    --shadow-sm:   0 1px 2px rgba(28,25,23,.05);
+    --shadow-md:   0 4px 16px -4px rgba(28,25,23,.10), 0 1px 3px rgba(28,25,23,.05);
+    --radius:      12px;
+    --radius-sm:   8px;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:          #131211;
+      --surface:     #1a1917;
+      --surface-2:   #211f1d;
+      --surface-3:   #292624;
+      --line:        #2c2926;
+      --line-strong: #3d3936;
+      --text:        #f5f3f0;
+      --text-2:      #c4bdb5;
+      --muted:       #8f8880;
+      --accent:      #2dd4bf;
+      --accent-hover:#5eead4;
+      --accent-soft: #16302d;
+      --accent-line: #1e5751;
+      --ok:          #4ade80;
+      --warn:        #fbbf24;
+      --err:         #f87171;
+      --err-soft:    #2a1b1a;
+      --shadow-sm:   0 1px 2px rgba(0,0,0,.3);
+      --shadow-md:   0 4px 20px -4px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.3);
+    }
+  }
+
   * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
   body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font: 15px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  header {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 20px; border-bottom: 1px solid var(--line);
-    background: var(--panel); position: sticky; top: 0; z-index: 10;
-  }
-  header h1 { font-size: 15px; margin: 0; font-weight: 600; letter-spacing: .2px; }
-  header .sub { color: var(--muted); font-size: 13px; }
-  .spacer { flex: 1; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
-  .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(63,185,80,.6); }
-  .dot.err { background: var(--err); box-shadow: 0 0 8px rgba(248,81,73,.6); }
 
-  main {
-    display: grid; grid-template-columns: 390px 1fr; gap: 18px;
-    padding: 18px; max-width: 1500px; margin: 0 auto; align-items: start;
+  ::selection { background: var(--accent-soft); color: var(--text); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong); border-radius: 10px;
+    border: 3px solid var(--bg); background-clip: padding-box;
   }
-  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); background-clip: padding-box; }
+
+  /* ============ header ============ */
+  header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px; height: 60px;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .mark {
+    width: 28px; height: 28px; border-radius: 7px; flex: none;
+    background: var(--accent); color: var(--surface);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 14px; letter-spacing: -.5px;
+  }
+  @media (prefers-color-scheme: dark) { .mark { color: #0d1f1d; } }
+  .wordmark { font-size: 15px; font-weight: 650; letter-spacing: -.2px; margin: 0; }
+  .tag {
+    font-size: 11px; color: var(--text-2); border: 1px solid var(--line);
+    padding: 2px 8px; border-radius: 20px; background: var(--surface-2);
+    letter-spacing: .2px; white-space: nowrap;
+  }
+  .spacer { flex: 1; }
+  .status { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none;
+    transition: .3s;
+  }
+  .dot.ok  { background: var(--ok);  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent); }
+  .dot.err { background: var(--err); box-shadow: 0 0 0 3px color-mix(in srgb, var(--err) 18%, transparent); }
+
+  /* ============ layout ============ */
+  main {
+    display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 20px;
+    padding: 20px 24px; max-width: 1440px; margin: 0 auto;
+    align-items: start; height: calc(100vh - 60px);
+  }
+  @media (max-width: 940px) {
+    main { grid-template-columns: 1fr; height: auto; }
+    #chatCard { height: 70vh; }
+  }
 
   .card {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    overflow: hidden;
   }
-  .card h2 {
-    margin: 0; padding: 12px 16px; font-size: 12px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .8px; color: var(--muted);
-    border-bottom: 1px solid var(--line); background: var(--panel-2);
+  .card > header, .card-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 13px 18px; border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
   }
-  .card .body { padding: 16px; }
+  .card-head h2 {
+    margin: 0; font-size: 11.5px; font-weight: 650;
+    text-transform: uppercase; letter-spacing: .9px; color: var(--text-2);
+  }
+  .step {
+    width: 18px; height: 18px; border-radius: 50%; flex: none;
+    background: var(--surface-3); color: var(--text-2);
+    display: grid; place-items: center; font-size: 10.5px; font-weight: 700;
+  }
+  .card-body { padding: 18px; }
 
-  /* ---------- upload ---------- */
+  /* ============ dropzone ============ */
   #drop {
-    border: 1.5px dashed var(--line); border-radius: 8px; padding: 26px 16px;
-    text-align: center; cursor: pointer; transition: .15s; color: var(--muted);
+    border: 1.5px dashed var(--line-strong); border-radius: var(--radius-sm);
+    padding: 30px 18px; text-align: center; cursor: pointer;
+    transition: border-color .18s, background .18s, transform .18s;
+    background: var(--surface-2);
   }
-  #drop:hover, #drop.over { border-color: var(--accent); background: var(--accent-dim); color: var(--text); }
-  #drop strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
-  #drop small { font-size: 12px; }
+  #drop:hover { border-color: var(--accent); background: var(--accent-soft); }
+  #drop.over  { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.015); }
+  #drop svg { color: var(--muted); margin-bottom: 10px; transition: color .18s; }
+  #drop:hover svg, #drop.over svg { color: var(--accent); }
+  #drop strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  #drop small { font-size: 12px; color: var(--muted); }
   #file { display: none; }
 
-  .stages { margin-top: 14px; display: none; }
+  /* ============ stages ============ */
+  .stages { margin-top: 16px; display: none; }
   .stages.on { display: block; }
   .stage {
-    display: flex; align-items: center; gap: 9px; padding: 5px 0;
-    font-size: 13px; color: var(--muted);
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0; font-size: 13px; color: var(--muted);
+    transition: color .2s;
   }
-  .stage .mark {
-    width: 16px; height: 16px; border-radius: 50%; flex: none;
-    border: 1.5px solid var(--line); display: grid; place-items: center;
-    font-size: 10px; line-height: 1;
+  .stage .mk {
+    width: 17px; height: 17px; border-radius: 50%; flex: none;
+    border: 1.5px solid var(--line-strong);
+    display: grid; place-items: center; font-size: 10px; line-height: 1;
+    transition: .2s;
   }
-  .stage.run .mark { border-color: var(--accent); animation: pulse 1.1s ease-in-out infinite; }
-  .stage.run { color: var(--text); }
-  .stage.done .mark { border-color: var(--ok); color: var(--ok); }
+  .stage.run .mk { border-color: var(--accent); border-right-color: transparent; animation: spin .7s linear infinite; }
+  .stage.run  { color: var(--text); }
   .stage.done { color: var(--text); }
-  .stage.fail .mark { border-color: var(--err); color: var(--err); }
+  .stage.done .mk { border-color: var(--ok); color: var(--ok); }
   .stage.fail { color: var(--err); }
-  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.35 } }
+  .stage.fail .mk { border-color: var(--err); color: var(--err); }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; margin-top: 14px; }
+  /* ============ meta list ============ */
+  .kv {
+    display: grid; grid-template-columns: 68px minmax(0,1fr); gap: 7px 14px;
+    font-size: 12.5px; margin: 16px 0 0; padding-top: 15px;
+    border-top: 1px solid var(--line);
+  }
   .kv dt { color: var(--muted); }
-  .kv dd { margin: 0; font-family: var(--mono); font-size: 12px; word-break: break-all; }
+  .kv dd {
+    margin: 0; font-family: var(--mono); font-size: 11.5px;
+    color: var(--text-2); overflow-wrap: anywhere;
+  }
 
   .alert {
-    margin-top: 12px; padding: 10px 12px; border-radius: 7px; font-size: 13px;
-    border: 1px solid var(--err); background: rgba(248,81,73,.1); color: #ffb4ae;
+    margin-top: 14px; padding: 11px 13px; border-radius: var(--radius-sm);
+    font-size: 12.5px; line-height: 1.5;
+    border: 1px solid color-mix(in srgb, var(--err) 35%, transparent);
+    background: var(--err-soft); color: var(--err);
   }
-  .alert.warn { border-color: var(--warn); background: rgba(210,153,34,.1); color: #f0c674; }
+  .alert.warn {
+    border-color: color-mix(in srgb, var(--warn) 35%, transparent);
+    background: color-mix(in srgb, var(--warn) 8%, transparent); color: var(--warn);
+  }
 
+  /* ============ buttons ============ */
   button {
-    font: inherit; cursor: pointer; border-radius: 7px; border: 1px solid var(--line);
-    background: var(--panel-2); color: var(--text); padding: 8px 13px; transition: .15s;
+    font: inherit; cursor: pointer; border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong); background: var(--surface);
+    color: var(--text); padding: 8px 14px; font-size: 13.5px; font-weight: 500;
+    transition: .16s;
   }
-  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:hover:not(:disabled) { border-color: var(--muted); background: var(--surface-2); }
   button:disabled { opacity: .45; cursor: not-allowed; }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #04101f; font-weight: 600; }
-  button.primary:hover:not(:disabled) { filter: brightness(1.12); }
+  button:focus-visible, textarea:focus-visible, input:focus-visible, #drop:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  button.primary {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; font-weight: 600;
+  }
+  @media (prefers-color-scheme: dark) { button.primary { color: #0b1f1d; } }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
   button.link {
-    background: none; border: none; color: var(--accent); padding: 0;
-    font-size: 12px; text-decoration: underline;
+    background: none; border: none; padding: 0; color: var(--accent);
+    font-size: 12.5px; font-weight: 500;
   }
+  button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
 
-  /* ---------- chunk inspector ---------- */
-  #chunks { margin-top: 12px; display: none; }
+  /* ============ chunk inspector ============ */
+  #chunks { margin-top: 15px; display: none; padding-top: 14px; border-top: 1px solid var(--line); }
   #chunks.on { display: block; }
-  #chunkList { max-height: 260px; overflow-y: auto; margin-top: 8px; }
+  #chunkList { max-height: 240px; overflow-y: auto; margin-top: 10px; }
+  #chunkList:empty { margin-top: 0; }
   .chunk {
-    border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
-    margin-bottom: 6px; font-size: 12px; background: var(--bg);
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    padding: 9px 11px; margin-bottom: 7px; font-size: 12px;
+    background: var(--surface-2); line-height: 1.55; color: var(--text-2);
   }
-  .chunk .meta { color: var(--muted); font-family: var(--mono); font-size: 11px; margin-bottom: 4px; }
+  .chunk .meta {
+    color: var(--muted); font-family: var(--mono); font-size: 10.5px;
+    margin-bottom: 5px; letter-spacing: .2px;
+  }
 
-  /* ---------- chat ---------- */
-  #chatCard { display: flex; flex-direction: column; height: calc(100vh - 108px); min-height: 460px; }
-  #thread { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-  .msg { max-width: 84%; }
+  /* ============ chat ============ */
+  #chatCard { display: flex; flex-direction: column; height: 100%; min-height: 420px; }
+  #thread {
+    flex: 1; overflow-y: auto; padding: 22px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .msg { max-width: 80%; animation: rise .28s ease-out; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
   .msg.user { align-self: flex-end; }
-  .msg .bubble { padding: 10px 14px; border-radius: 10px; white-space: pre-wrap; }
-  .msg.user .bubble { background: var(--accent-dim); border: 1px solid #2d5a8f; }
-  .msg.bot .bubble { background: var(--panel-2); border: 1px solid var(--line); }
-  .msg.bot.error .bubble { border-color: var(--err); color: #ffb4ae; }
-  .msg .who { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .6px; }
+  .who {
+    font-size: 10.5px; color: var(--muted); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: .7px; font-weight: 600;
+  }
   .msg.user .who { text-align: right; }
+  .bubble {
+    padding: 12px 16px; border-radius: var(--radius);
+    white-space: pre-wrap; font-size: 14.5px; line-height: 1.65;
+  }
+  .msg.user .bubble {
+    background: var(--accent); color: #fff; border-bottom-right-radius: 4px;
+  }
+  @media (prefers-color-scheme: dark) { .msg.user .bubble { color: #0b1f1d; } }
+  .msg.bot .bubble {
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.bot.error .bubble {
+    background: var(--err-soft); border-color: color-mix(in srgb, var(--err) 35%, transparent);
+    color: var(--err);
+  }
 
-  .cites { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .cites { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .cite {
-    font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 20px;
-    background: var(--bg); border: 1px solid var(--line); color: var(--muted);
+    font-size: 11.5px; padding: 4px 10px; border-radius: 20px;
+    background: var(--accent-soft); border: 1px solid var(--accent-line);
+    color: var(--text-2); font-family: var(--mono);
   }
-  .cite b { color: var(--accent); font-weight: 600; }
-  .foot { margin-top: 7px; font-size: 11px; color: var(--muted); }
+  .cite b { color: var(--accent); font-weight: 700; }
+  .foot { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
 
-  .empty { margin: auto; text-align: center; color: var(--muted); font-size: 13px; max-width: 330px; }
+  .empty {
+    margin: auto; text-align: center; color: var(--muted);
+    font-size: 13.5px; max-width: 330px; line-height: 1.7;
+  }
+  .empty .lead { color: var(--text); font-weight: 600; font-size: 15px; margin-bottom: 8px; }
 
-  #composer { border-top: 1px solid var(--line); padding: 12px 16px; background: var(--panel-2); }
-  .row { display: flex; gap: 9px; align-items: flex-end; }
+  /* ============ composer ============ */
+  #composer { border-top: 1px solid var(--line); padding: 14px 18px; background: var(--surface-2); }
+  .row { display: flex; gap: 10px; align-items: flex-end; }
   textarea {
-    flex: 1; resize: none; font: inherit; padding: 9px 11px; border-radius: 7px;
-    background: var(--bg); color: var(--text); border: 1px solid var(--line);
-    max-height: 130px; min-height: 40px;
+    flex: 1; resize: none; font: inherit; font-size: 14px; padding: 10px 13px;
+    border-radius: var(--radius-sm); background: var(--surface);
+    color: var(--text); border: 1px solid var(--line-strong);
+    max-height: 132px; min-height: 42px; transition: border-color .16s;
   }
-  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
-  .opts { display: flex; gap: 16px; align-items: center; margin-top: 9px; font-size: 12px; color: var(--muted); }
-  .opts label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  textarea::placeholder { color: var(--muted); }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  .opts {
+    display: flex; gap: 18px; align-items: center; margin-top: 11px;
+    font-size: 12px; color: var(--muted);
+  }
+  .opts label { display: flex; gap: 7px; align-items: center; cursor: pointer; }
   input[type=number] {
-    width: 54px; font: inherit; font-size: 12px; padding: 3px 6px; border-radius: 5px;
-    background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    width: 52px; font: inherit; font-size: 12px; padding: 4px 7px;
+    border-radius: 6px; background: var(--surface); color: var(--text);
+    border: 1px solid var(--line-strong);
   }
+  input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
+
+  .typing { display: flex; gap: 4px; align-items: center; padding: 16px; }
   .typing span {
-    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--muted); margin-right: 3px; animation: bounce 1.3s infinite;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); animation: bounce 1.3s infinite;
   }
-  .typing span:nth-child(2) { animation-delay: .18s; }
-  .typing span:nth-child(3) { animation-delay: .36s; }
-  @keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity:.4 } 30% { transform: translateY(-5px); opacity:1 } }
+  .typing span:nth-child(2) { animation-delay: .16s; }
+  .typing span:nth-child(3) { animation-delay: .32s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); opacity: .35; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="dot" id="healthDot"></div>
-  <h1>KnowledgeAI</h1>
-  <span class="sub">Pipeline Test Console</span>
+  <div class="mark">K</div>
+  <h1 class="wordmark">KnowledgeAI</h1>
+  <span class="tag">hybrid retrieval · grounded citations</span>
   <div class="spacer"></div>
-  <span class="sub" id="healthText">checking…</span>
+  <div class="status"><span class="dot" id="healthDot"></span><span id="healthText">connecting…</span></div>
 </header>
 
 <main>
-  <!-- ============ LEFT: document ============ -->
-  <div>
-    <div class="card">
-      <h2>1 · Document</h2>
-      <div class="body">
-        <div id="drop">
-          <strong>Drop a PDF or click to browse</strong>
-          <small>Text-based PDFs only · max 25 MB</small>
-        </div>
-        <input type="file" id="file" accept=".pdf,application/pdf" />
+  <!-- ============ document ============ -->
+  <div class="card">
+    <div class="card-head"><span class="step">1</span><h2>Document</h2></div>
+    <div class="card-body">
+      <div id="drop" tabindex="0" role="button" aria-label="Upload a PDF">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v13"/>
+        </svg>
+        <strong>Drop a PDF, or click to browse</strong>
+        <small>Text-based PDFs · up to 25 MB</small>
+      </div>
+      <input type="file" id="file" accept=".pdf,application/pdf" />
 
-        <div class="stages" id="stages">
-          <div class="stage" data-stage="upload"><span class="mark"></span><span>Uploading &amp; validating</span></div>
-          <div class="stage" data-stage="index"><span class="mark"></span><span>Extract → chunk → embed → index</span></div>
-        </div>
+      <div class="stages" id="stages">
+        <div class="stage" data-stage="upload"><span class="mk"></span><span>Uploading &amp; validating</span></div>
+        <div class="stage" data-stage="index"><span class="mk"></span><span>Extract → chunk → embed → index</span></div>
+      </div>
 
-        <div id="docError"></div>
+      <div id="docError"></div>
 
-        <dl class="kv" id="docInfo" style="display:none">
-          <dt>File</dt><dd id="iName"></dd>
-          <dt>Doc ID</dt><dd id="iId"></dd>
-          <dt>Size</dt><dd id="iSize"></dd>
-          <dt>Chunks</dt><dd id="iChunks"></dd>
-          <dt>Model</dt><dd id="iModel"></dd>
-        </dl>
+      <dl class="kv" id="docInfo" style="display:none">
+        <dt>File</dt><dd id="iName"></dd>
+        <dt>ID</dt><dd id="iId"></dd>
+        <dt>Size</dt><dd id="iSize"></dd>
+        <dt>Chunks</dt><dd id="iChunks"></dd>
+        <dt>Model</dt><dd id="iModel"></dd>
+      </dl>
 
-        <div id="chunks">
-          <button class="link" id="toggleChunks">Inspect chunks</button>
-          <div id="chunkList"></div>
-        </div>
+      <div id="chunks">
+        <button class="link" id="toggleChunks">Inspect chunks</button>
+        <div id="chunkList"></div>
       </div>
     </div>
   </div>
 
-  <!-- ============ RIGHT: chat ============ -->
+  <!-- ============ chat ============ -->
   <div class="card" id="chatCard">
-    <h2>2 · Ask</h2>
+    <div class="card-head"><span class="step">2</span><h2>Ask</h2></div>
     <div id="thread">
       <div class="empty" id="empty">
-        Index a PDF on the left, then ask a question about it.<br /><br />
-        Answers are grounded strictly in retrieved chunks, and every
-        <span class="cite"><b>S1</b></span> chip below an answer is a citation the
-        model actually used.
+        <div class="lead">Ask your documents anything</div>
+        Index a PDF on the left, then ask a question. Answers are grounded strictly
+        in retrieved passages — every <span class="cite"><b>S1</b></span> chip is a
+        source the model actually cited.
       </div>
     </div>
     <div id="composer">
@@ -243,7 +404,7 @@ async function api(path, options = {}) {
   let res;
   try {
     res = await fetch(path, options);
-  } catch (e) {
+  } catch {
     throw new Error("Cannot reach the backend. Is uvicorn running?");
   }
   const body = await res.json().catch(() => null);
@@ -261,7 +422,7 @@ async function api(path, options = {}) {
   try {
     const h = await api("/health");
     $("healthDot").className = "dot ok";
-    $("healthText").textContent = h.service + " · online";
+    $("healthText").textContent = h.service + " online";
   } catch {
     $("healthDot").className = "dot err";
     $("healthText").textContent = "backend unreachable";
@@ -272,7 +433,7 @@ async function api(path, options = {}) {
 function stage(name, state) {
   const el = document.querySelector(`[data-stage="${name}"]`);
   el.className = "stage " + state;
-  el.querySelector(".mark").textContent =
+  el.querySelector(".mk").textContent =
     state === "done" ? "✓" : state === "fail" ? "✕" : "";
 }
 function resetStages() {
@@ -281,13 +442,16 @@ function resetStages() {
   $("docError").innerHTML = "";
 }
 function showError(msg, kind = "") {
-  $("docError").innerHTML = `<div class="alert ${kind}"></div>`;
-  $("docError").firstChild.textContent = msg;
+  const box = document.createElement("div");
+  box.className = "alert " + kind;
+  box.textContent = msg;
+  $("docError").replaceChildren(box);
 }
 
 /* ---------------- upload + index ---------------- */
 const drop = $("drop"), fileInput = $("file");
 drop.onclick = () => fileInput.click();
+drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } };
 drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
 drop.ondragleave = () => drop.classList.remove("over");
 drop.ondrop = (e) => {
@@ -302,6 +466,7 @@ async function handleFile(file) {
   $("docInfo").style.display = "none";
   $("chunks").classList.remove("on");
   $("chunkList").innerHTML = "";
+  $("toggleChunks").textContent = "Inspect chunks";
 
   if (!file.name.toLowerCase().endsWith(".pdf")) {
     stage("upload", "fail");
@@ -312,7 +477,6 @@ async function handleFile(file) {
     return showError("PDF exceeds the 25 MB upload limit.");
   }
 
-  // --- stage 1: upload ---
   stage("upload", "run");
   let uploaded;
   try {
@@ -333,7 +497,7 @@ async function handleFile(file) {
   $("iModel").textContent = "—";
   $("docInfo").style.display = "grid";
 
-  // --- stage 2: index (upload alone does not index) ---
+  // Upload alone does not index; embedding is a separate stage.
   stage("index", "run");
   try {
     const indexed = await api(`${API}/documents/${docId}/index`, { method: "POST" });
@@ -341,8 +505,16 @@ async function handleFile(file) {
     $("iChunks").textContent = indexed.chunk_count;
     $("iModel").textContent = indexed.embedding_model;
     $("chunks").classList.add("on");
-    $("empty") && ($("empty").innerHTML =
-      `<strong>${uploaded.filename}</strong> is indexed into ${indexed.chunk_count} chunks.<br />Ask it something.`);
+    const empty = $("empty");
+    if (empty) {
+      empty.replaceChildren();
+      const lead = document.createElement("div");
+      lead.className = "lead";
+      lead.textContent = uploaded.filename;
+      const note = document.createElement("div");
+      note.textContent = `Indexed into ${indexed.chunk_count} searchable chunks. Ask it something.`;
+      empty.append(lead, note);
+    }
   } catch (e) {
     stage("index", "fail");
     const offline = /unavailable/i.test(e.message);
@@ -356,19 +528,28 @@ async function handleFile(file) {
 /* ---------------- chunk inspector ---------------- */
 $("toggleChunks").onclick = async () => {
   const list = $("chunkList");
-  if (list.innerHTML) { list.innerHTML = ""; $("toggleChunks").textContent = "Inspect chunks"; return; }
+  if (list.innerHTML) {
+    list.innerHTML = "";
+    $("toggleChunks").textContent = "Inspect chunks";
+    return;
+  }
   $("toggleChunks").textContent = "Loading…";
   try {
     const data = await api(`${API}/documents/${docId}/chunks`);
-    list.innerHTML = data.chunks.map((c) => `
-      <div class="chunk">
-        <div class="meta">page ${c.page_number} · chunk ${c.chunk_index} · ${c.token_count} tokens</div>
-        <div></div>
-      </div>`).join("");
-    // assign text via textContent so PDF content can never inject markup
-    list.querySelectorAll(".chunk > div:last-child").forEach((el, i) => {
-      el.textContent = data.chunks[i].text;
-    });
+    // Built as nodes, not markup: PDF text must never be parsed as HTML.
+    const frag = document.createDocumentFragment();
+    for (const c of data.chunks) {
+      const box = document.createElement("div");
+      box.className = "chunk";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `page ${c.page_number} · chunk ${c.chunk_index} · ${c.token_count} tokens`;
+      const body = document.createElement("div");
+      body.textContent = c.text;
+      box.append(meta, body);
+      frag.append(box);
+    }
+    list.replaceChildren(frag);
     $("toggleChunks").textContent = "Hide chunks";
   } catch (e) {
     list.innerHTML = "";
@@ -398,23 +579,22 @@ function addMsg(who, text, { citations = [], count = null, isError = false } = {
   if (citations.length) {
     const box = document.createElement("div");
     box.className = "cites";
-    citations.forEach((c) => {
+    for (const c of citations) {
       const chip = document.createElement("span");
       chip.className = "cite";
-      chip.innerHTML = `<b></b> page <b></b> · chunk `;
-      chip.children[0].textContent = c.source_id;
-      chip.children[1].textContent = c.page_number;
-      chip.append(String(c.chunk_index));
+      const id = document.createElement("b");
+      id.textContent = c.source_id;
+      chip.append(id, ` page ${c.page_number} · chunk ${c.chunk_index}`);
       box.append(chip);
-    });
+    }
     wrap.append(box);
   }
   if (count !== null) {
     const foot = document.createElement("div");
     foot.className = "foot";
     foot.textContent = citations.length
-      ? `${count} chunks retrieved · ${citations.length} cited`
-      : `${count} chunks retrieved · no citations emitted`;
+      ? `${count} passages retrieved · ${citations.length} cited`
+      : `${count} passages retrieved · no citations emitted`;
     wrap.append(foot);
   }
 
@@ -432,17 +612,19 @@ async function ask() {
 
   const pending = document.createElement("div");
   pending.className = "msg bot";
-  pending.innerHTML = `<div class="who">KnowledgeAI</div>
-    <div class="bubble typing"><span></span><span></span><span></span></div>`;
+  const who = document.createElement("div");
+  who.className = "who";
+  who.textContent = "KnowledgeAI";
+  const dots = document.createElement("div");
+  dots.className = "bubble typing";
+  dots.append(document.createElement("span"), document.createElement("span"), document.createElement("span"));
+  pending.append(who, dots);
   thread.append(pending);
   thread.scrollTop = thread.scrollHeight;
 
   $("send").disabled = true;
   try {
-    const payload = {
-      question,
-      top_k: Number($("topk").value) || 5,
-    };
+    const payload = { question, top_k: Number($("topk").value) || 5 };
     if (docId && !$("allDocs").checked) payload.document_id = docId;
 
     const res = await api(`${API}/chat/ask`, {
@@ -451,10 +633,7 @@ async function ask() {
       body: JSON.stringify(payload),
     });
     pending.remove();
-    addMsg("bot", res.answer, {
-      citations: res.citations,
-      count: res.retrieved_chunk_count,
-    });
+    addMsg("bot", res.answer, { citations: res.citations, count: res.retrieved_chunk_count });
   } catch (e) {
     pending.remove();
     addMsg("bot", e.message, { isError: true });
@@ -470,9 +649,12 @@ qBox.addEventListener("keydown", (e) => {
 });
 qBox.addEventListener("input", () => {
   qBox.style.height = "auto";
-  qBox.style.height = Math.min(qBox.scrollHeight, 130) + "px";
+  qBox.style.height = Math.min(qBox.scrollHeight, 132) + "px";
 });
-$("clear").onclick = () => { thread.innerHTML = ""; };
+$("clear").onclick = () => {
+  thread.replaceChildren();
+  qBox.focus();
+};
 </script>
 </body>
 </html>
