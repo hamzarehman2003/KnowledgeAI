@@ -22,7 +22,9 @@ class RetrievedChunkResponse(BaseModel):
     page_number: int
     chunk_index: int
     text: str
-    distance: float
+    # Null when BM25 surfaced the chunk and embedding search did not, so there
+    # is no cosine distance to report.
+    distance: float | None
 
 
 class SearchResponse(BaseModel):

@@ -24,9 +24,37 @@ def test_search_endpoint_returns_sources(monkeypatch) -> None:
         },
     )()
     monkeypatch.setattr("app.api.retrieval.build_retrieval_service", lambda: fake_retriever)
+
     client = TestClient(app)
 
     response = client.post("/api/v1/retrieval/search", json={"question": "Find relevant text"})
 
     assert response.status_code == 200
     assert response.json()["results"][0]["page_number"] == 1
+
+
+def test_search_endpoint_serializes_lexical_only_chunks(monkeypatch) -> None:
+    """A BM25-only hit has no embedding distance, and must still serialize."""
+    fake_retriever = type(
+        "FakeRetriever",
+        (),
+        {
+            "search": lambda _self, **_kwargs: [
+                RetrievalResult(
+                    chunk=RetrievedChunk(
+                        document_id="document-1",
+                        page_number=2,
+                        chunk_index=0,
+                        text="Found by keyword match.",
+                        distance=None,
+                    )
+                )
+            ]
+        },
+    )()
+    monkeypatch.setattr("app.api.retrieval.build_retrieval_service", lambda: fake_retriever)
+
+    response = TestClient(app).post("/api/v1/retrieval/search", json={"question": "warfarin"})
+
+    assert response.status_code == 200
+    assert response.json()["results"][0]["distance"] is None
