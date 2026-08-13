@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from pydantic import BaseModel
 
+from app.api.dependencies import reset_lexical_index
 from app.core.config import get_settings
 from app.documents.extraction import EncryptedPdfError, PdfExtractionError, extract_pdf_pages
 from app.documents.validation import InvalidDocumentError, validate_pdf_upload
@@ -184,6 +185,9 @@ def index_document(document_id: UUID) -> IndexDocumentResponse:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Embedding or vector storage service is unavailable.",
         ) from error
+
+    # New vectors are searchable immediately; the lexical index must follow.
+    reset_lexical_index()
 
     return IndexDocumentResponse(
         document_id=str(document_id),

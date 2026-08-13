@@ -16,7 +16,12 @@ class RetrievedChunk:
     page_number: int
     chunk_index: int
     text: str
-    distance: float
+    # None when a chunk was found lexically rather than by embedding distance.
+    distance: float | None = None
+
+    @property
+    def chunk_id(self) -> str:
+        return f"{self.document_id}:{self.page_number}:{self.chunk_index}"
 
 
 class ChromaVectorStore:
@@ -63,6 +68,32 @@ class ChromaVectorStore:
             )
         except Exception as error:
             raise VectorStoreError("Could not write vectors to ChromaDB.") from error
+
+    def all_chunks(self) -> list[RetrievedChunk]:
+        """Read every stored chunk, for building the lexical index.
+
+        The vector store is the single source of truth for chunk text, so the
+        BM25 index is derived from it rather than persisted separately; it
+        therefore cannot drift out of sync with what is actually searchable.
+        """
+        try:
+            collection = self.client.get_collection(name=self.collection_name)
+            result = collection.get(include=["documents", "metadatas"])
+        except Exception as error:
+            raise VectorStoreError("Could not read chunks from ChromaDB.") from error
+
+        return [
+            RetrievedChunk(
+                document_id=str(metadata["document_id"]),
+                page_number=int(metadata["page_number"]),
+                chunk_index=int(metadata["chunk_index"]),
+                text=str(text),
+                distance=None,
+            )
+            for text, metadata in zip(
+                result.get("documents") or [], result.get("metadatas") or [], strict=True
+            )
+        ]
 
     def search(
         self, *, query_embedding: Sequence[float], top_k: int, document_id: str | None = None

@@ -19,8 +19,8 @@ from app.core.config import get_settings
 from app.rag.embeddings import OllamaEmbeddingService
 from app.rag.reranking import CrossEncoderReranker
 from app.rag.vector_store import RetrievedChunk
+from app.rag.lexical import BM25Index, reciprocal_rank_fusion
 from eval.beir_index import load_corpus
-from eval.bm25 import BM25Index, reciprocal_rank_fusion
 
 # Fetched per query: deep enough for recall@100 and a meaningful threshold sweep.
 CANDIDATE_DEPTH = 100

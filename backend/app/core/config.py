@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     # Cosine-distance ceiling for retrieved chunks. Left disabled until a value is
     # justified by the threshold sweep in eval/beir_eval.py; see README results.
     retrieval_distance_threshold: float | None = None
+    # Fuses BM25 with embedding search. Measured on BEIR NFCorpus: nDCG@10
+    # 0.3399 dense-only vs 0.3518 hybrid. rrf_k chosen on the dev split.
+    hybrid_retrieval_enabled: bool = True
+    rrf_k: int = 10
     reranking_enabled: bool = False
     reranker_model: str = "BAAI/bge-reranker-base"
     reranker_device: str | None = None

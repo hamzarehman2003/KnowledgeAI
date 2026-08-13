@@ -2,9 +2,31 @@ from functools import lru_cache
 
 from app.core.config import get_settings
 from app.rag.embeddings import OllamaEmbeddingService
+from app.rag.lexical import ChunkLexicalIndex
 from app.rag.reranking import CrossEncoderReranker
 from app.rag.retrieval import RetrievalService
 from app.rag.vector_store import ChromaVectorStore
+
+_lexical_cache: dict[str, object] = {}
+
+
+def build_lexical_index(vector_store: ChromaVectorStore) -> ChunkLexicalIndex:
+    """Build the BM25 index from the vector store, reusing it while unchanged.
+
+    Chunk count is a cheap staleness signal that catches uploads and deletions.
+    It cannot see an edit that preserves the count, so `reset_lexical_index()`
+    is called from the indexing endpoint, which is the only writer.
+    """
+    chunks = vector_store.all_chunks()
+    if _lexical_cache.get("count") != len(chunks) or "index" not in _lexical_cache:
+        _lexical_cache["index"] = ChunkLexicalIndex(chunks)
+        _lexical_cache["count"] = len(chunks)
+    return _lexical_cache["index"]
+
+
+def reset_lexical_index() -> None:
+    """Drop the cached index after a write, so the next search rebuilds it."""
+    _lexical_cache.clear()
 
 
 @lru_cache(maxsize=1)
@@ -28,18 +50,25 @@ def build_retrieval_service() -> RetrievalService:
         if settings.reranking_enabled
         else None
     )
+    vector_store = ChromaVectorStore(
+        host=settings.chroma_host,
+        port=settings.chroma_port,
+        collection_name=settings.chroma_collection_name,
+    )
     return RetrievalService(
         embedder=OllamaEmbeddingService(
             base_url=settings.ollama_base_url,
             model=settings.ollama_embedding_model,
             batch_size=settings.embedding_batch_size,
         ),
-        vector_store=ChromaVectorStore(
-            host=settings.chroma_host,
-            port=settings.chroma_port,
-            collection_name=settings.chroma_collection_name,
-        ),
+        vector_store=vector_store,
         distance_threshold=settings.retrieval_distance_threshold,
         reranker=reranker,
         candidate_depth=settings.rerank_candidate_depth,
+        lexical_index_provider=(
+            (lambda: build_lexical_index(vector_store))
+            if settings.hybrid_retrieval_enabled
+            else None
+        ),
+        rrf_k=settings.rrf_k,
     )
