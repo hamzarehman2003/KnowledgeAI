@@ -3,10 +3,10 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
-from app.core.config import get_settings
-from app.rag.embeddings import EmbeddingError, OllamaEmbeddingService
-from app.rag.retrieval import RetrievalService
-from app.rag.vector_store import ChromaVectorStore, VectorStoreError
+from app.api.dependencies import build_retrieval_service
+from app.rag.embeddings import EmbeddingError
+from app.rag.reranking import RerankError
+from app.rag.vector_store import VectorStoreError
 
 router = APIRouter(prefix="/retrieval", tags=["retrieval"])
 
@@ -34,26 +34,13 @@ class SearchResponse(BaseModel):
 @router.post("/search", response_model=SearchResponse)
 def search_documents(request: SearchRequest) -> SearchResponse:
     """Return the most semantically relevant chunks; no LLM generation yet."""
-    settings = get_settings()
-    service = RetrievalService(
-        embedder=OllamaEmbeddingService(
-            base_url=settings.ollama_base_url,
-            model=settings.ollama_embedding_model,
-            batch_size=settings.embedding_batch_size,
-        ),
-        vector_store=ChromaVectorStore(
-            host=settings.chroma_host,
-            port=settings.chroma_port,
-            collection_name=settings.chroma_collection_name,
-        ),
-    )
     try:
-        results = service.search(
+        results = build_retrieval_service().search(
             question=request.question,
             top_k=request.top_k,
             document_id=request.document_id,
         )
-    except (EmbeddingError, VectorStoreError) as error:
+    except (EmbeddingError, VectorStoreError, RerankError) as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Embedding or vector search service is unavailable.",

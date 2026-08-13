@@ -26,6 +26,9 @@ def test_index_document_embeds_and_stores_chunks(tmp_path, monkeypatch) -> None:
         "app.api.documents.OllamaEmbeddingService.embed_texts", lambda _self, _texts: [[0.1, 0.2]]
     )
     captured: dict[str, object] = {}
+    # ChromaVectorStore connects inside __init__, so the constructor has to be
+    # stubbed too or this test would need a live ChromaDB.
+    monkeypatch.setattr("app.api.documents.ChromaVectorStore.__init__", lambda _self, **_kwargs: None)
     monkeypatch.setattr(
         "app.api.documents.ChromaVectorStore.replace_document_chunks",
         lambda _self, **kwargs: captured.update(kwargs),

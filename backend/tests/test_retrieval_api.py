@@ -6,20 +6,24 @@ from app.rag.vector_store import RetrievedChunk
 
 
 def test_search_endpoint_returns_sources(monkeypatch) -> None:
-    monkeypatch.setattr(
-        "app.api.retrieval.RetrievalService.search",
-        lambda _self, **_kwargs: [
-            RetrievalResult(
-                chunk=RetrievedChunk(
-                    document_id="document-1",
-                    page_number=1,
-                    chunk_index=0,
-                    text="Relevant text.",
-                    distance=0.05,
+    fake_retriever = type(
+        "FakeRetriever",
+        (),
+        {
+            "search": lambda _self, **_kwargs: [
+                RetrievalResult(
+                    chunk=RetrievedChunk(
+                        document_id="document-1",
+                        page_number=1,
+                        chunk_index=0,
+                        text="Relevant text.",
+                        distance=0.05,
+                    )
                 )
-            )
-        ],
-    )
+            ]
+        },
+    )()
+    monkeypatch.setattr("app.api.retrieval.build_retrieval_service", lambda: fake_retriever)
     client = TestClient(app)
 
     response = client.post("/api/v1/retrieval/search", json={"question": "Find relevant text"})

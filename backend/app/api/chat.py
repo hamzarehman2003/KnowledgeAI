@@ -3,11 +3,13 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
+from app.api.dependencies import build_retrieval_service
 from app.core.config import get_settings
-from app.rag.embeddings import EmbeddingError, OllamaEmbeddingService
+from app.rag.embeddings import EmbeddingError
 from app.rag.generation import GeneratedAnswer, GenerationError, OllamaChatService
-from app.rag.retrieval import RetrievalResult, RetrievalService
-from app.rag.vector_store import ChromaVectorStore, VectorStoreError
+from app.rag.reranking import RerankError
+from app.rag.retrieval import RetrievalResult
+from app.rag.vector_store import VectorStoreError
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -31,22 +33,6 @@ class AskResponse(BaseModel):
     retrieved_chunk_count: int
 
 
-def _build_retrieval_service() -> RetrievalService:
-    settings = get_settings()
-    return RetrievalService(
-        embedder=OllamaEmbeddingService(
-            base_url=settings.ollama_base_url,
-            model=settings.ollama_embedding_model,
-            batch_size=settings.embedding_batch_size,
-        ),
-        vector_store=ChromaVectorStore(
-            host=settings.chroma_host,
-            port=settings.chroma_port,
-            collection_name=settings.chroma_collection_name,
-        ),
-    )
-
-
 def _build_chat_service() -> OllamaChatService:
     settings = get_settings()
     return OllamaChatService(
@@ -60,7 +46,7 @@ def _build_chat_service() -> OllamaChatService:
 def ask_question(request: AskRequest) -> AskResponse:
     """Retrieve evidence and generate a citation-grounded answer."""
     try:
-        sources = _build_retrieval_service().search(
+        sources = build_retrieval_service().search(
             question=request.question,
             top_k=request.top_k,
             document_id=request.document_id,
@@ -72,7 +58,7 @@ def ask_question(request: AskRequest) -> AskResponse:
                 retrieved_chunk_count=0,
             )
         generated = _build_chat_service().answer(question=request.question, sources=sources)
-    except (EmbeddingError, VectorStoreError, GenerationError) as error:
+    except (EmbeddingError, VectorStoreError, RerankError, GenerationError) as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Retrieval or answer-generation service is unavailable.",

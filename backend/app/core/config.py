@@ -23,6 +23,15 @@ class Settings(BaseSettings):
     upload_directory: str = "uploads"
     chunk_size_tokens: int = 450
     chunk_overlap_tokens: int = 75
+    # Cosine-distance ceiling for retrieved chunks. Left disabled until a value is
+    # justified by the threshold sweep in eval/beir_eval.py; see README results.
+    retrieval_distance_threshold: float | None = None
+    reranking_enabled: bool = False
+    reranker_model: str = "BAAI/bge-reranker-base"
+    reranker_device: str | None = None
+    reranker_batch_size: int = 32
+    # Shortlist depth handed to the cross-encoder before it truncates to top_k.
+    rerank_candidate_depth: int = 50
 
 
 @lru_cache

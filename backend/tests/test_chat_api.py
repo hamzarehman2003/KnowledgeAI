@@ -26,7 +26,7 @@ def test_ask_returns_model_answer_and_citation(monkeypatch) -> None:
             )
         },
     )()
-    monkeypatch.setattr("app.api.chat._build_retrieval_service", lambda: fake_retriever)
+    monkeypatch.setattr("app.api.chat.build_retrieval_service", lambda: fake_retriever)
     monkeypatch.setattr("app.api.chat._build_chat_service", lambda: fake_chat)
     client = TestClient(app)
 

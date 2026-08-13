@@ -25,9 +25,55 @@ class FakeVectorStore:
         ]
 
 
+class StubEmbedder:
+    def embed_texts(self, texts: list[str]) -> list[list[float]]:
+        return [[0.1, 0.2]]
+
+
+class DistanceStubStore:
+    """Returns one chunk per supplied distance, nearest first."""
+
+    def __init__(self, *distances: float) -> None:
+        self.distances = distances
+
+    def search(self, **_kwargs) -> list[RetrievedChunk]:
+        return [
+            RetrievedChunk(
+                document_id="document-1",
+                page_number=1,
+                chunk_index=index,
+                text=f"chunk {index}",
+                distance=distance,
+            )
+            for index, distance in enumerate(self.distances)
+        ]
+
+
 def test_retrieval_embeds_question_then_searches() -> None:
     service = RetrievalService(embedder=FakeEmbedder(), vector_store=FakeVectorStore())
 
     result = service.search(question="What is the refund policy?", top_k=3, document_id=uuid4())
 
     assert result[0].chunk.page_number == 2
+
+
+def test_retrieval_drops_chunks_beyond_distance_threshold() -> None:
+    service = RetrievalService(
+        embedder=StubEmbedder(),
+        vector_store=DistanceStubStore(0.20, 0.45, 0.80),
+        distance_threshold=0.50,
+    )
+
+    results = service.search(question="anything", top_k=3)
+
+    assert [result.chunk.distance for result in results] == [0.20, 0.45]
+
+
+def test_retrieval_keeps_every_chunk_when_threshold_is_unset() -> None:
+    service = RetrievalService(
+        embedder=StubEmbedder(), vector_store=DistanceStubStore(0.20, 0.80, 0.99)
+    )
+
+    results = service.search(question="anything", top_k=3)
+
+    assert len(results) == 3
