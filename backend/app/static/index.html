@@ -475,6 +475,67 @@ let chats = [];      // [{id, title, turns:[{who,text,citations,count,isError}]}
 let activeDoc = null;
 let activeChat = null;
 
+/* Sample conversations, seeded once so the app is not empty on a first visit.
+   Deleting them sticks: an empty array is still "seeded", so they never return. */
+const SEED_CHATS = [
+  {
+    title: "What is CPython, and how does it differ…",
+    turns: [
+      { who: "user", text: "What is CPython, and how does it differ from other implementations?" },
+      { who: "bot", text: "CPython is the reference implementation of Python, written in C. It compiles source code to bytecode and executes it on a virtual machine. [S1]\n\nOther implementations differ in their execution strategy: Jython targets the JVM, IronPython targets .NET, and PyPy uses a just-in-time compiler for faster execution of long-running code. [S3]",
+        citations: [{ source_id: "S1", page_number: 12, chunk_index: 0 }, { source_id: "S3", page_number: 14, chunk_index: 1 }], count: 5 },
+    ],
+  },
+  {
+    title: "Explain interpreted versus compiled langu…",
+    turns: [
+      { who: "user", text: "Explain interpreted versus compiled languages." },
+      { who: "bot", text: "A compiled language is translated to machine code ahead of execution, producing a binary that runs directly on the processor. An interpreted language is translated at run time, statement by statement. [S2]\n\nPython occupies a middle position: source is compiled to bytecode, which the interpreter then executes, which is why .pyc files appear after a module is imported. [S4]",
+        citations: [{ source_id: "S2", page_number: 8, chunk_index: 1 }, { source_id: "S4", page_number: 9, chunk_index: 0 }], count: 5 },
+    ],
+  },
+  {
+    title: "Which tools are recommended for beginners?",
+    turns: [
+      { who: "user", text: "Which tools are recommended for beginners?" },
+      { who: "bot", text: "The document recommends IDLE, which ships with Python and provides an editor and interactive shell in one window. [S1]\n\nFor scientific work it suggests Anaconda, a distribution that bundles the interpreter with package management and common numerical libraries. [S2]",
+        citations: [{ source_id: "S1", page_number: 21, chunk_index: 0 }, { source_id: "S2", page_number: 22, chunk_index: 0 }], count: 5 },
+    ],
+  },
+  {
+    title: "Summarise the section on data types",
+    turns: [
+      { who: "user", text: "Summarise the section on data types." },
+      { who: "bot", text: "The section covers the built-in scalar types — integers, floats, booleans and strings — followed by the collection types: lists, tuples, sets and dictionaries. [S1]\n\nIt emphasises the mutable/immutable distinction, noting that tuples and strings cannot be modified in place while lists and dictionaries can. [S3]",
+        citations: [{ source_id: "S1", page_number: 34, chunk_index: 0 }, { source_id: "S3", page_number: 36, chunk_index: 2 }], count: 5 },
+    ],
+  },
+  {
+    title: "How does Python manage memory?",
+    turns: [
+      { who: "user", text: "How does Python manage memory?" },
+      { who: "bot", text: "Memory is managed automatically through reference counting: each object tracks how many references point to it, and is deallocated when that count reaches zero. [S2]\n\nA cyclic garbage collector supplements this, since reference counting alone cannot reclaim objects that refer to one another. [S5]",
+        citations: [{ source_id: "S2", page_number: 58, chunk_index: 1 }, { source_id: "S5", page_number: 59, chunk_index: 0 }], count: 5 },
+    ],
+  },
+  {
+    title: "List the main topics covered",
+    turns: [
+      { who: "user", text: "List the main topics covered." },
+      { who: "bot", text: "The document covers: the history and design goals of Python, installation and tooling, core syntax and data types, control flow, functions and modules, object-oriented programming, and the standard library. [S1][S2]",
+        citations: [{ source_id: "S1", page_number: 3, chunk_index: 0 }, { source_id: "S2", page_number: 4, chunk_index: 0 }], count: 5 },
+    ],
+  },
+  {
+    title: "What does it say about error handling?",
+    turns: [
+      { who: "user", text: "What does it say about error handling?" },
+      { who: "bot", text: "Errors are handled with try/except blocks, optionally followed by else and finally clauses. The document distinguishes syntax errors, raised before execution, from exceptions raised during it. [S3]\n\nIt advises catching specific exception types rather than using a bare except, which would also swallow interrupts. [S4]",
+        citations: [{ source_id: "S3", page_number: 71, chunk_index: 1 }, { source_id: "S4", page_number: 72, chunk_index: 0 }], count: 5 },
+    ],
+  },
+];
+
 function readStore(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
@@ -884,7 +945,12 @@ $("scrim").onclick = closeSidebar;
 /* ---------- boot ---------- */
 applyTheme(readStore(STORE_THEME, "system"));
 docs = readStore(STORE_DOCS, []).filter((d) => d.id && d.id !== "pending");
-chats = readStore(STORE_CHATS, []);
+// null means "never seeded"; an empty array means the user cleared them.
+chats = readStore(STORE_CHATS, null);
+if (chats === null) {
+  chats = SEED_CHATS.map((c, i) => ({ id: "sample-" + i, ...c }));
+  writeStore(STORE_CHATS, chats);
+}
 renderDocs();
 renderChats();
 renderThread();
