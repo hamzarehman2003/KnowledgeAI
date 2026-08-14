@@ -81,6 +81,14 @@
 
   .app { display: grid; grid-template-columns: 268px minmax(0,1fr); height: 100vh; }
 
+  /* Fixed and hidden by default: as a plain block it would occupy a grid
+     column and push .main onto a second row. */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    z-index: 45; display: none;
+  }
+  .scrim.on { display: block; }
+
   /* ════════ sidebar ════════ */
   .sidebar {
     background: var(--side); border-right: 1px solid var(--line);
@@ -303,8 +311,6 @@
     }
     .sidebar.open { transform: none; }
     #menuBtn { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; }
-    .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 45; display: none; }
-    .scrim.on { display: block; }
   }
 </style>
 </head>
