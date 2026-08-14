@@ -464,6 +464,7 @@
 const API = "/api/v1";
 const STORE_DOCS = "knowledgeai.docs";
 const STORE_CHATS = "knowledgeai.chats";
+const STORE_SEEDED = "knowledgeai.seeded";
 const STORE_THEME = "knowledgeai.theme";
 const $ = (id) => document.getElementById(id);
 
@@ -945,10 +946,13 @@ $("scrim").onclick = closeSidebar;
 /* ---------- boot ---------- */
 applyTheme(readStore(STORE_THEME, "system"));
 docs = readStore(STORE_DOCS, []).filter((d) => d.id && d.id !== "pending");
-// null means "never seeded"; an empty array means the user cleared them.
-chats = readStore(STORE_CHATS, null);
-if (chats === null) {
-  chats = SEED_CHATS.map((c, i) => ({ id: "sample-" + i, ...c }));
+// Seeding is tracked by its own flag rather than by the chat list being empty,
+// so samples appear alongside existing conversations instead of only in place
+// of them -- and still never come back once deleted.
+chats = readStore(STORE_CHATS, []);
+if (!readStore(STORE_SEEDED, false)) {
+  chats = chats.concat(SEED_CHATS.map((c, i) => ({ id: "sample-" + i, ...c })));
+  writeStore(STORE_SEEDED, true);
   writeStore(STORE_CHATS, chats);
 }
 renderDocs();
