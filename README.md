@@ -110,7 +110,22 @@ cd backend && uvicorn app.main:app --reload
 ```
 
 Open <http://localhost:8000> for the console, or `/docs` for the OpenAPI schema.
-`docker compose up --build` also works if you prefer containers.
+
+`docker compose up --build` also works, though it provisions a PostgreSQL that
+nothing currently connects to — persistence is the next piece of work, not a
+shipped feature.
+
+## The console
+
+A single self-contained page served by FastAPI at `/`, with no build step: upload
+a PDF, watch it index, and ask questions scoped to one document or across all of
+them. Answers show their citation chips, and a chunk inspector exposes exactly
+what the retriever stored.
+
+Documents and conversations are held in browser storage, because the API has no
+endpoint for either yet — the browser list and the vectors in ChromaDB can
+therefore drift apart. Moving that state server side is the first item on the
+roadmap below.
 
 ## Tests
 
