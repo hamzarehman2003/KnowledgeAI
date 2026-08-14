@@ -150,7 +150,13 @@
   }
 
   /* ════════ main ════════ */
-  .main { display: flex; flex-direction: column; min-width: 0; position: relative; }
+  /* min-height:0 is load-bearing: a grid item defaults to min-height:auto, so
+     without it .main grows past the 100vh row as messages accumulate and
+     #thread never gets a bounded height to scroll inside. */
+  .main {
+    display: flex; flex-direction: column; min-width: 0; min-height: 0;
+    overflow: hidden; position: relative;
+  }
   .topbar {
     display: flex; align-items: center; gap: 10px; height: 54px;
     padding: 0 20px; border-bottom: 1px solid var(--line-soft); flex: none;
