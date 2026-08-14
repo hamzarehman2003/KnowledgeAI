@@ -6,62 +6,76 @@
 <title>KnowledgeAI — Document Intelligence</title>
 <style>
   :root {
-    --bg:          #fbfaf9;
-    --surface:     #ffffff;
-    --surface-2:   #f6f5f3;
-    --surface-3:   #efedea;
-    --line:        #e6e3de;
-    --line-strong: #d6d2cb;
-    --text:        #1c1917;
-    --text-2:      #57534e;
-    --muted:       #8b857d;
-    --accent:      #0f766e;
-    --accent-hover:#115e57;
-    --accent-soft: #e6f4f1;
-    --accent-line: #99d5cd;
-    --ok:          #15803d;
-    --warn:        #b45309;
-    --err:         #b91c1c;
-    --err-soft:    #fdf0ef;
-    --shadow-sm:   0 1px 2px rgba(28,25,23,.05);
-    --shadow-md:   0 4px 16px -4px rgba(28,25,23,.10), 0 1px 3px rgba(28,25,23,.05);
-    --radius:      12px;
-    --radius-sm:   8px;
+    --bg:            #fcfbfa;
+    --bg-glow:       rgba(13, 148, 136, .07);
+    --surface:       #ffffff;
+    --surface-2:     #f7f6f4;
+    --surface-3:     #efedea;
+    --line:          #e8e5e0;
+    --line-soft:     #f0eeea;
+    --line-strong:   #d8d4cd;
+    --text:          #1a1816;
+    --text-2:        #55504a;
+    --muted:         #8a837a;
+    --accent:        #0d9488;
+    --accent-2:      #0f766e;
+    --accent-hover:  #0f766e;
+    --accent-soft:   #e8f6f4;
+    --accent-line:   #a7ded7;
+    --accent-glow:   rgba(13, 148, 136, .18);
+    --ok:            #15803d;
+    --ok-soft:       #eaf6ee;
+    --warn:          #b45309;
+    --err:           #be123c;
+    --err-soft:      #fdf1f3;
+    --sh-1: 0 1px 2px rgba(26,24,22,.04), 0 1px 1px rgba(26,24,22,.03);
+    --sh-2: 0 2px 4px rgba(26,24,22,.04), 0 4px 12px -2px rgba(26,24,22,.06);
+    --sh-3: 0 8px 28px -6px rgba(26,24,22,.12), 0 2px 6px rgba(26,24,22,.05);
+    --r-sm: 8px; --r: 12px; --r-lg: 16px; --r-xl: 20px;
     --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg:          #131211;
-      --surface:     #1a1917;
-      --surface-2:   #211f1d;
-      --surface-3:   #292624;
-      --line:        #2c2926;
-      --line-strong: #3d3936;
-      --text:        #f5f3f0;
-      --text-2:      #c4bdb5;
-      --muted:       #8f8880;
+      --bg:          #0e0d0c;
+      --bg-glow:     rgba(45, 212, 191, .06);
+      --surface:     #171614;
+      --surface-2:   #1e1c1a;
+      --surface-3:   #272421;
+      --line:        #2a2724;
+      --line-soft:   #211f1c;
+      --line-strong: #3a3632;
+      --text:        #f7f5f2;
+      --text-2:      #c9c2b9;
+      --muted:       #928b82;
       --accent:      #2dd4bf;
+      --accent-2:    #5eead4;
       --accent-hover:#5eead4;
-      --accent-soft: #16302d;
-      --accent-line: #1e5751;
+      --accent-soft: #12302c;
+      --accent-line: #1d5751;
+      --accent-glow: rgba(45, 212, 191, .16);
       --ok:          #4ade80;
+      --ok-soft:     #13291b;
       --warn:        #fbbf24;
-      --err:         #f87171;
-      --err-soft:    #2a1b1a;
-      --shadow-sm:   0 1px 2px rgba(0,0,0,.3);
-      --shadow-md:   0 4px 20px -4px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.3);
+      --err:         #fb7185;
+      --err-soft:    #2b1519;
+      --sh-1: 0 1px 2px rgba(0,0,0,.35);
+      --sh-2: 0 2px 6px rgba(0,0,0,.35), 0 6px 16px -4px rgba(0,0,0,.4);
+      --sh-3: 0 10px 34px -8px rgba(0,0,0,.6), 0 3px 8px rgba(0,0,0,.4);
     }
   }
 
   * { box-sizing: border-box; }
-
   html, body { height: 100%; }
 
   body {
     margin: 0;
     background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, var(--bg-glow), transparent 70%),
+      radial-gradient(ellipse 700px 400px at 95% 0%, var(--bg-glow), transparent 65%);
+    background-attachment: fixed;
     color: var(--text);
     font: 15px/1.6 var(--sans);
     -webkit-font-smoothing: antialiased;
@@ -69,280 +83,339 @@
   }
 
   ::selection { background: var(--accent-soft); color: var(--text); }
-
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     background: var(--line-strong); border-radius: 10px;
-    border: 3px solid var(--bg); background-clip: padding-box;
+    border: 3.5px solid transparent; background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); background-clip: padding-box; }
 
-  /* ============ header ============ */
-  header {
-    display: flex; align-items: center; gap: 14px;
-    padding: 0 24px; height: 60px;
+  /* ══════════ top bar ══════════ */
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    height: 62px; padding: 0 22px;
     border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--surface) 85%, transparent);
-    backdrop-filter: saturate(180%) blur(12px);
-    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    position: sticky; top: 0; z-index: 30;
   }
-  .mark {
-    width: 28px; height: 28px; border-radius: 7px; flex: none;
-    background: var(--accent); color: var(--surface);
-    display: grid; place-items: center;
-    font-weight: 700; font-size: 14px; letter-spacing: -.5px;
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 30px; height: 30px; border-radius: 9px; flex: none;
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; color: #fff;
+    box-shadow: 0 2px 10px -1px var(--accent-glow);
   }
-  @media (prefers-color-scheme: dark) { .mark { color: #0d1f1d; } }
-  .wordmark { font-size: 15px; font-weight: 650; letter-spacing: -.2px; margin: 0; }
-  .tag {
-    font-size: 11px; color: var(--text-2); border: 1px solid var(--line);
-    padding: 2px 8px; border-radius: 20px; background: var(--surface-2);
-    letter-spacing: .2px; white-space: nowrap;
+  @media (prefers-color-scheme: dark) { .logo { color: #08201d; } }
+  .brand h1 {
+    margin: 0; font-size: 15.5px; font-weight: 660;
+    letter-spacing: -.25px; white-space: nowrap;
   }
-  .spacer { flex: 1; }
-  .status { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
-  .dot {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none;
-    transition: .3s;
+  .pills { display: flex; gap: 6px; margin-left: 6px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 500; letter-spacing: .1px;
+    padding: 4px 10px; border-radius: 20px; white-space: nowrap;
+    background: var(--accent-soft); color: var(--accent);
+    border: 1px solid var(--accent-line);
   }
-  .dot.ok  { background: var(--ok);  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent); }
-  .dot.err { background: var(--err); box-shadow: 0 0 0 3px color-mix(in srgb, var(--err) 18%, transparent); }
+  .pill svg { flex: none; }
+  @media (max-width: 780px) { .pills { display: none; } }
+  .grow { flex: 1; }
+  .status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12.5px; color: var(--muted); white-space: nowrap;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; transition: .3s; }
+  .dot.ok  { background: var(--ok);  box-shadow: 0 0 0 3.5px color-mix(in srgb, var(--ok) 16%, transparent); }
+  .dot.err { background: var(--err); box-shadow: 0 0 0 3.5px color-mix(in srgb, var(--err) 16%, transparent); }
 
-  /* ============ layout ============ */
+  /* ══════════ layout ══════════ */
   main {
-    display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 20px;
-    padding: 20px 24px; max-width: 1440px; margin: 0 auto;
-    align-items: start; height: calc(100vh - 60px);
+    display: grid; grid-template-columns: 372px minmax(0,1fr); gap: 20px;
+    padding: 20px 22px; max-width: 1460px; margin: 0 auto;
+    align-items: start; height: calc(100vh - 62px);
   }
-  @media (max-width: 940px) {
-    main { grid-template-columns: 1fr; height: auto; }
-    #chatCard { height: 70vh; }
+  @media (max-width: 960px) {
+    main { grid-template-columns: 1fr; height: auto; padding-bottom: 28px; }
+    #chatCard { height: 72vh; }
   }
 
   .card {
     background: var(--surface); border: 1px solid var(--line);
-    border-radius: var(--radius); box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    border-radius: var(--r-lg); box-shadow: var(--sh-2); overflow: hidden;
   }
-  .card > header, .card-head {
-    display: flex; align-items: center; gap: 8px;
-    padding: 13px 18px; border-bottom: 1px solid var(--line);
-    background: var(--surface-2);
+  .card-head {
+    display: flex; align-items: center; gap: 9px;
+    padding: 14px 18px; border-bottom: 1px solid var(--line-soft);
   }
   .card-head h2 {
-    margin: 0; font-size: 11.5px; font-weight: 650;
-    text-transform: uppercase; letter-spacing: .9px; color: var(--text-2);
+    margin: 0; font-size: 13.5px; font-weight: 620; letter-spacing: -.1px;
   }
-  .step {
-    width: 18px; height: 18px; border-radius: 50%; flex: none;
+  .card-head .hint { font-size: 11.5px; color: var(--muted); margin-left: auto; }
+  .ico {
+    width: 26px; height: 26px; border-radius: 8px; flex: none;
     background: var(--surface-3); color: var(--text-2);
-    display: grid; place-items: center; font-size: 10.5px; font-weight: 700;
+    display: grid; place-items: center;
   }
   .card-body { padding: 18px; }
 
-  /* ============ dropzone ============ */
+  /* ══════════ dropzone ══════════ */
   #drop {
-    border: 1.5px dashed var(--line-strong); border-radius: var(--radius-sm);
-    padding: 30px 18px; text-align: center; cursor: pointer;
-    transition: border-color .18s, background .18s, transform .18s;
-    background: var(--surface-2);
+    position: relative; border: 1.5px dashed var(--line-strong);
+    border-radius: var(--r); padding: 32px 18px; text-align: center;
+    cursor: pointer; background: var(--surface-2);
+    transition: border-color .2s, background .2s, transform .2s, box-shadow .2s;
   }
-  #drop:hover { border-color: var(--accent); background: var(--accent-soft); }
-  #drop.over  { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.015); }
-  #drop svg { color: var(--muted); margin-bottom: 10px; transition: color .18s; }
-  #drop:hover svg, #drop.over svg { color: var(--accent); }
-  #drop strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  #drop:hover { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-glow); }
+  #drop.over  { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.02); box-shadow: 0 0 0 5px var(--accent-glow); }
+  .drop-ico {
+    width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 13px;
+    background: var(--surface); border: 1px solid var(--line);
+    display: grid; place-items: center; color: var(--muted);
+    box-shadow: var(--sh-1); transition: .2s;
+  }
+  #drop:hover .drop-ico, #drop.over .drop-ico {
+    color: var(--accent); border-color: var(--accent-line); transform: translateY(-2px);
+  }
+  #drop strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; letter-spacing: -.1px; }
   #drop small { font-size: 12px; color: var(--muted); }
   #file { display: none; }
 
-  /* ============ stages ============ */
+  /* ══════════ stages ══════════ */
   .stages { margin-top: 16px; display: none; }
-  .stages.on { display: block; }
+  .stages.on { display: grid; gap: 3px; }
   .stage {
-    display: flex; align-items: center; gap: 10px;
-    padding: 6px 0; font-size: 13px; color: var(--muted);
-    transition: color .2s;
+    display: flex; align-items: center; gap: 11px; padding: 7px 9px;
+    font-size: 13px; color: var(--muted); border-radius: var(--r-sm);
+    transition: background .2s, color .2s;
   }
-  .stage .mk {
-    width: 17px; height: 17px; border-radius: 50%; flex: none;
-    border: 1.5px solid var(--line-strong);
-    display: grid; place-items: center; font-size: 10px; line-height: 1;
-    transition: .2s;
-  }
-  .stage.run .mk { border-color: var(--accent); border-right-color: transparent; animation: spin .7s linear infinite; }
-  .stage.run  { color: var(--text); }
+  .stage.run  { color: var(--text); background: var(--surface-2); }
   .stage.done { color: var(--text); }
-  .stage.done .mk { border-color: var(--ok); color: var(--ok); }
-  .stage.fail { color: var(--err); }
+  .stage.fail { color: var(--err); background: var(--err-soft); }
+  .stage .mk {
+    width: 18px; height: 18px; border-radius: 50%; flex: none;
+    border: 1.5px solid var(--line-strong); display: grid; place-items: center;
+    font-size: 10px; line-height: 1; font-weight: 700; transition: .2s;
+  }
+  .stage.run .mk  { border-color: var(--accent); border-right-color: transparent; animation: spin .65s linear infinite; }
+  .stage.done .mk { border-color: var(--ok); background: var(--ok); color: #fff; }
+  @media (prefers-color-scheme: dark) { .stage.done .mk { color: #06210f; } }
   .stage.fail .mk { border-color: var(--err); color: var(--err); }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ============ meta list ============ */
-  .kv {
-    display: grid; grid-template-columns: 68px minmax(0,1fr); gap: 7px 14px;
-    font-size: 12.5px; margin: 16px 0 0; padding-top: 15px;
-    border-top: 1px solid var(--line);
+  /* ══════════ document summary ══════════ */
+  .docCard {
+    margin-top: 16px; padding: 14px; border-radius: var(--r);
+    border: 1px solid var(--line); background: var(--surface-2); display: none;
   }
-  .kv dt { color: var(--muted); }
-  .kv dd {
-    margin: 0; font-family: var(--mono); font-size: 11.5px;
-    color: var(--text-2); overflow-wrap: anywhere;
+  .docCard.on { display: block; animation: rise .3s ease-out; }
+  .docTop { display: flex; align-items: flex-start; gap: 11px; }
+  .fileIco {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; border: 1px solid var(--accent-line);
   }
+  .docName {
+    font-size: 13.5px; font-weight: 600; letter-spacing: -.1px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .docSub { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 13px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r-sm); padding: 9px 10px; text-align: center;
+  }
+  .stat b { display: block; font-size: 16px; font-weight: 650; letter-spacing: -.4px; line-height: 1.25; }
+  .stat span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
 
   .alert {
-    margin-top: 14px; padding: 11px 13px; border-radius: var(--radius-sm);
-    font-size: 12.5px; line-height: 1.5;
-    border: 1px solid color-mix(in srgb, var(--err) 35%, transparent);
+    margin-top: 14px; padding: 11px 13px; border-radius: var(--r-sm);
+    font-size: 12.5px; line-height: 1.55;
+    border: 1px solid color-mix(in srgb, var(--err) 30%, transparent);
     background: var(--err-soft); color: var(--err);
   }
   .alert.warn {
-    border-color: color-mix(in srgb, var(--warn) 35%, transparent);
-    background: color-mix(in srgb, var(--warn) 8%, transparent); color: var(--warn);
+    border-color: color-mix(in srgb, var(--warn) 32%, transparent);
+    background: color-mix(in srgb, var(--warn) 9%, transparent); color: var(--warn);
   }
 
-  /* ============ buttons ============ */
+  /* ══════════ buttons ══════════ */
   button {
-    font: inherit; cursor: pointer; border-radius: var(--radius-sm);
+    font: inherit; cursor: pointer; border-radius: var(--r-sm);
     border: 1px solid var(--line-strong); background: var(--surface);
-    color: var(--text); padding: 8px 14px; font-size: 13.5px; font-weight: 500;
+    color: var(--text); padding: 9px 15px; font-size: 13.5px; font-weight: 550;
     transition: .16s;
   }
   button:hover:not(:disabled) { border-color: var(--muted); background: var(--surface-2); }
+  button:active:not(:disabled) { transform: translateY(1px); }
   button:disabled { opacity: .45; cursor: not-allowed; }
   button:focus-visible, textarea:focus-visible, input:focus-visible, #drop:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
   button.primary {
-    background: var(--accent); border-color: var(--accent);
-    color: #fff; font-weight: 600;
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    border-color: transparent; color: #fff; font-weight: 600;
+    box-shadow: 0 2px 10px -2px var(--accent-glow);
   }
-  @media (prefers-color-scheme: dark) { button.primary { color: #0b1f1d; } }
-  button.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  @media (prefers-color-scheme: dark) { button.primary { color: #08201d; } }
+  button.primary:hover:not(:disabled) { filter: brightness(1.07); box-shadow: 0 4px 14px -2px var(--accent-glow); }
   button.link {
     background: none; border: none; padding: 0; color: var(--accent);
-    font-size: 12.5px; font-weight: 500;
+    font-size: 12.5px; font-weight: 550;
   }
   button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
 
-  /* ============ chunk inspector ============ */
-  #chunks { margin-top: 15px; display: none; padding-top: 14px; border-top: 1px solid var(--line); }
+  /* ══════════ chunks ══════════ */
+  #chunks { margin-top: 14px; display: none; }
   #chunks.on { display: block; }
-  #chunkList { max-height: 240px; overflow-y: auto; margin-top: 10px; }
+  #chunkList { max-height: 230px; overflow-y: auto; margin-top: 10px; padding-right: 2px; }
   #chunkList:empty { margin-top: 0; }
   .chunk {
-    border: 1px solid var(--line); border-radius: var(--radius-sm);
-    padding: 9px 11px; margin-bottom: 7px; font-size: 12px;
-    background: var(--surface-2); line-height: 1.55; color: var(--text-2);
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 10px 12px; margin-bottom: 7px; font-size: 12px;
+    background: var(--surface-2); line-height: 1.6; color: var(--text-2);
   }
   .chunk .meta {
     color: var(--muted); font-family: var(--mono); font-size: 10.5px;
     margin-bottom: 5px; letter-spacing: .2px;
   }
 
-  /* ============ chat ============ */
-  #chatCard { display: flex; flex-direction: column; height: 100%; min-height: 420px; }
-  #thread {
-    flex: 1; overflow-y: auto; padding: 22px;
-    display: flex; flex-direction: column; gap: 20px;
+  /* ══════════ chat ══════════ */
+  #chatCard { display: flex; flex-direction: column; height: 100%; min-height: 440px; }
+  #thread { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 22px; }
+
+  .msg { display: flex; gap: 11px; max-width: 86%; animation: rise .3s cubic-bezier(.2,.8,.3,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .av {
+    width: 28px; height: 28px; border-radius: 9px; flex: none; margin-top: 2px;
+    display: grid; place-items: center; font-size: 11px; font-weight: 700;
   }
-  .msg { max-width: 80%; animation: rise .28s ease-out; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
-  .msg.user { align-self: flex-end; }
-  .who {
-    font-size: 10.5px; color: var(--muted); margin-bottom: 6px;
-    text-transform: uppercase; letter-spacing: .7px; font-weight: 600;
+  .msg.bot .av {
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    color: #fff; box-shadow: 0 2px 8px -2px var(--accent-glow);
   }
-  .msg.user .who { text-align: right; }
+  @media (prefers-color-scheme: dark) { .msg.bot .av { color: #08201d; } }
+  .msg.user .av { background: var(--surface-3); color: var(--text-2); }
+  .col { min-width: 0; }
   .bubble {
-    padding: 12px 16px; border-radius: var(--radius);
-    white-space: pre-wrap; font-size: 14.5px; line-height: 1.65;
+    padding: 12px 16px; border-radius: var(--r); white-space: pre-wrap;
+    font-size: 14.5px; line-height: 1.7;
   }
-  .msg.user .bubble {
-    background: var(--accent); color: #fff; border-bottom-right-radius: 4px;
-  }
-  @media (prefers-color-scheme: dark) { .msg.user .bubble { color: #0b1f1d; } }
   .msg.bot .bubble {
     background: var(--surface-2); border: 1px solid var(--line);
-    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
   }
+  .msg.user .bubble {
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    color: #fff; border-top-right-radius: 4px;
+    box-shadow: 0 2px 12px -3px var(--accent-glow);
+  }
+  @media (prefers-color-scheme: dark) { .msg.user .bubble { color: #08201d; } }
   .msg.bot.error .bubble {
-    background: var(--err-soft); border-color: color-mix(in srgb, var(--err) 35%, transparent);
-    color: var(--err);
+    background: var(--err-soft); color: var(--err);
+    border-color: color-mix(in srgb, var(--err) 30%, transparent);
   }
 
   .cites { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
   .cite {
-    font-size: 11.5px; padding: 4px 10px; border-radius: 20px;
-    background: var(--accent-soft); border: 1px solid var(--accent-line);
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; padding: 4px 10px 4px 5px; border-radius: 20px;
+    background: var(--surface); border: 1px solid var(--accent-line);
     color: var(--text-2); font-family: var(--mono);
+    transition: .16s; cursor: default;
   }
-  .cite b { color: var(--accent); font-weight: 700; }
-  .foot { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
-
-  .empty {
-    margin: auto; text-align: center; color: var(--muted);
-    font-size: 13.5px; max-width: 330px; line-height: 1.7;
+  .cite:hover { background: var(--accent-soft); transform: translateY(-1px); }
+  .cite b {
+    background: var(--accent); color: #fff; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px; font-size: 10.5px;
   }
-  .empty .lead { color: var(--text); font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+  @media (prefers-color-scheme: dark) { .cite b { color: #08201d; } }
+  .foot {
+    margin-top: 9px; font-size: 11.5px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
 
-  /* ============ composer ============ */
-  #composer { border-top: 1px solid var(--line); padding: 14px 18px; background: var(--surface-2); }
+  .empty { margin: auto; text-align: center; max-width: 340px; padding: 20px; }
+  .empty .bigIco {
+    width: 52px; height: 52px; margin: 0 auto 16px; border-radius: 15px;
+    background: var(--accent-soft); border: 1px solid var(--accent-line);
+    color: var(--accent); display: grid; place-items: center;
+  }
+  .empty .lead { font-size: 17px; font-weight: 640; letter-spacing: -.3px; margin-bottom: 7px; }
+  .empty p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+
+  /* ══════════ composer ══════════ */
+  #composer { border-top: 1px solid var(--line-soft); padding: 15px 18px; background: var(--surface-2); }
   .row { display: flex; gap: 10px; align-items: flex-end; }
   textarea {
-    flex: 1; resize: none; font: inherit; font-size: 14px; padding: 10px 13px;
-    border-radius: var(--radius-sm); background: var(--surface);
-    color: var(--text); border: 1px solid var(--line-strong);
-    max-height: 132px; min-height: 42px; transition: border-color .16s;
+    flex: 1; resize: none; font: inherit; font-size: 14px; padding: 11px 14px;
+    border-radius: var(--r); background: var(--surface); color: var(--text);
+    border: 1px solid var(--line-strong); max-height: 130px; min-height: 44px;
+    transition: border-color .16s, box-shadow .16s;
   }
   textarea::placeholder { color: var(--muted); }
-  textarea:focus { outline: none; border-color: var(--accent); }
-  .opts {
-    display: flex; gap: 18px; align-items: center; margin-top: 11px;
-    font-size: 12px; color: var(--muted);
-  }
+  textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3.5px var(--accent-glow); }
+  .opts { display: flex; gap: 18px; align-items: center; margin-top: 12px; font-size: 12px; color: var(--muted); }
   .opts label { display: flex; gap: 7px; align-items: center; cursor: pointer; }
   input[type=number] {
-    width: 52px; font: inherit; font-size: 12px; padding: 4px 7px;
-    border-radius: 6px; background: var(--surface); color: var(--text);
-    border: 1px solid var(--line-strong);
+    width: 52px; font: inherit; font-size: 12px; padding: 4px 7px; border-radius: 6px;
+    background: var(--surface); color: var(--text); border: 1px solid var(--line-strong);
   }
   input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
 
-  .typing { display: flex; gap: 4px; align-items: center; padding: 16px; }
-  .typing span {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--muted); animation: bounce 1.3s infinite;
-  }
+  .typing { display: flex; gap: 5px; align-items: center; padding: 17px 18px; }
+  .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: bounce 1.3s infinite; }
   .typing span:nth-child(2) { animation-delay: .16s; }
   .typing span:nth-child(3) { animation-delay: .32s; }
-  @keyframes bounce {
-    0%,60%,100% { transform: translateY(0); opacity: .35; }
-    30% { transform: translateY(-5px); opacity: 1; }
-  }
+  @keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity: .3; } 30% { transform: translateY(-5px); opacity: 1; } }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="mark">K</div>
-  <h1 class="wordmark">KnowledgeAI</h1>
-  <span class="tag">hybrid retrieval · grounded citations</span>
-  <div class="spacer"></div>
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    </div>
+    <h1>KnowledgeAI</h1>
+  </div>
+  <div class="pills">
+    <span class="pill">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+      Hybrid retrieval
+    </span>
+    <span class="pill">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      Grounded citations
+    </span>
+  </div>
+  <div class="grow"></div>
   <div class="status"><span class="dot" id="healthDot"></span><span id="healthText">connecting…</span></div>
-</header>
+</div>
 
 <main>
-  <!-- ============ document ============ -->
+  <!-- ═══ document ═══ -->
   <div class="card">
-    <div class="card-head"><span class="step">1</span><h2>Document</h2></div>
+    <div class="card-head">
+      <span class="ico">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </span>
+      <h2>Document</h2>
+      <span class="hint">PDF · 25 MB</span>
+    </div>
     <div class="card-body">
       <div id="drop" tabindex="0" role="button" aria-label="Upload a PDF">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v13"/>
-        </svg>
+        <div class="drop-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v13"/></svg>
+        </div>
         <strong>Drop a PDF, or click to browse</strong>
-        <small>Text-based PDFs · up to 25 MB</small>
+        <small>Text-based PDFs only</small>
       </div>
       <input type="file" id="file" accept=".pdf,application/pdf" />
 
@@ -353,30 +426,45 @@
 
       <div id="docError"></div>
 
-      <dl class="kv" id="docInfo" style="display:none">
-        <dt>File</dt><dd id="iName"></dd>
-        <dt>ID</dt><dd id="iId"></dd>
-        <dt>Size</dt><dd id="iSize"></dd>
-        <dt>Chunks</dt><dd id="iChunks"></dd>
-        <dt>Model</dt><dd id="iModel"></dd>
-      </dl>
-
-      <div id="chunks">
-        <button class="link" id="toggleChunks">Inspect chunks</button>
-        <div id="chunkList"></div>
+      <div class="docCard" id="docCard">
+        <div class="docTop">
+          <div class="fileIco">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          </div>
+          <div style="min-width:0">
+            <div class="docName" id="iName"></div>
+            <div class="docSub" id="iId"></div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="iChunks">—</b><span>Chunks</span></div>
+          <div class="stat"><b id="iSize">—</b><span>Size</span></div>
+          <div class="stat"><b id="iModel">—</b><span>Embedding</span></div>
+        </div>
+        <div id="chunks">
+          <button class="link" id="toggleChunks" style="margin-top:13px">Inspect chunks</button>
+          <div id="chunkList"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ============ chat ============ -->
+  <!-- ═══ chat ═══ -->
   <div class="card" id="chatCard">
-    <div class="card-head"><span class="step">2</span><h2>Ask</h2></div>
+    <div class="card-head">
+      <span class="ico">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      </span>
+      <h2>Ask</h2>
+      <span class="hint" id="modeHint">grounded in your documents</span>
+    </div>
     <div id="thread">
       <div class="empty" id="empty">
+        <div class="bigIco">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+        </div>
         <div class="lead">Ask your documents anything</div>
-        Index a PDF on the left, then ask a question. Answers are grounded strictly
-        in retrieved passages — every <span class="cite"><b>S1</b></span> chip is a
-        source the model actually cited.
+        <p>Index a PDF on the left, then ask away. Every answer is grounded strictly in retrieved passages, with citations you can verify.</p>
       </div>
     </div>
     <div id="composer">
@@ -396,10 +484,9 @@
 <script>
 const API = "/api/v1";
 let docId = null;
-
 const $ = (id) => document.getElementById(id);
 
-/* ---------------- api helper ---------------- */
+/* ---------- api ---------- */
 async function api(path, options = {}) {
   let res;
   try {
@@ -410,14 +497,12 @@ async function api(path, options = {}) {
   const body = await res.json().catch(() => null);
   if (!res.ok) {
     const detail = body && body.detail;
-    throw new Error(
-      typeof detail === "string" ? detail : `Request failed (HTTP ${res.status}).`
-    );
+    throw new Error(typeof detail === "string" ? detail : `Request failed (HTTP ${res.status}).`);
   }
   return body;
 }
 
-/* ---------------- health ---------------- */
+/* ---------- health ---------- */
 (async function health() {
   try {
     const h = await api("/health");
@@ -429,17 +514,16 @@ async function api(path, options = {}) {
   }
 })();
 
-/* ---------------- stages ---------------- */
+/* ---------- stages ---------- */
 function stage(name, state) {
   const el = document.querySelector(`[data-stage="${name}"]`);
   el.className = "stage " + state;
-  el.querySelector(".mk").textContent =
-    state === "done" ? "✓" : state === "fail" ? "✕" : "";
+  el.querySelector(".mk").textContent = state === "done" ? "✓" : state === "fail" ? "✕" : "";
 }
 function resetStages() {
   $("stages").classList.add("on");
   ["upload", "index"].forEach((s) => stage(s, ""));
-  $("docError").innerHTML = "";
+  $("docError").replaceChildren();
 }
 function showError(msg, kind = "") {
   const box = document.createElement("div");
@@ -448,7 +532,7 @@ function showError(msg, kind = "") {
   $("docError").replaceChildren(box);
 }
 
-/* ---------------- upload + index ---------------- */
+/* ---------- upload + index ---------- */
 const drop = $("drop"), fileInput = $("file");
 drop.onclick = () => fileInput.click();
 drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } };
@@ -463,9 +547,8 @@ fileInput.onchange = () => fileInput.files[0] && handleFile(fileInput.files[0]);
 
 async function handleFile(file) {
   resetStages();
-  $("docInfo").style.display = "none";
-  $("chunks").classList.remove("on");
-  $("chunkList").innerHTML = "";
+  $("docCard").classList.remove("on");
+  $("chunkList").replaceChildren();
   $("toggleChunks").textContent = "Inspect chunks";
 
   if (!file.name.toLowerCase().endsWith(".pdf")) {
@@ -491,11 +574,11 @@ async function handleFile(file) {
 
   docId = uploaded.document_id;
   $("iName").textContent = uploaded.filename;
-  $("iId").textContent = uploaded.document_id;
-  $("iSize").textContent = (uploaded.size_bytes / 1024).toFixed(1) + " KB";
+  $("iId").textContent = uploaded.document_id.slice(0, 18) + "…";
+  $("iSize").textContent = (uploaded.size_bytes / 1024).toFixed(0) + " KB";
   $("iChunks").textContent = "—";
   $("iModel").textContent = "—";
-  $("docInfo").style.display = "grid";
+  $("docCard").classList.add("on");
 
   // Upload alone does not index; embedding is a separate stage.
   stage("index", "run");
@@ -503,17 +586,14 @@ async function handleFile(file) {
     const indexed = await api(`${API}/documents/${docId}/index`, { method: "POST" });
     stage("index", "done");
     $("iChunks").textContent = indexed.chunk_count;
-    $("iModel").textContent = indexed.embedding_model;
+    $("iModel").textContent = indexed.embedding_model.split(":")[0].replace("nomic-embed-text", "nomic");
     $("chunks").classList.add("on");
+
     const empty = $("empty");
     if (empty) {
-      empty.replaceChildren();
-      const lead = document.createElement("div");
-      lead.className = "lead";
-      lead.textContent = uploaded.filename;
-      const note = document.createElement("div");
-      note.textContent = `Indexed into ${indexed.chunk_count} searchable chunks. Ask it something.`;
-      empty.append(lead, note);
+      empty.querySelector(".lead").textContent = uploaded.filename;
+      empty.querySelector("p").textContent =
+        `Indexed into ${indexed.chunk_count} searchable passages. Ask it anything.`;
     }
   } catch (e) {
     stage("index", "fail");
@@ -525,18 +605,18 @@ async function handleFile(file) {
   }
 }
 
-/* ---------------- chunk inspector ---------------- */
+/* ---------- chunk inspector ---------- */
 $("toggleChunks").onclick = async () => {
   const list = $("chunkList");
-  if (list.innerHTML) {
-    list.innerHTML = "";
+  if (list.childElementCount) {
+    list.replaceChildren();
     $("toggleChunks").textContent = "Inspect chunks";
     return;
   }
   $("toggleChunks").textContent = "Loading…";
   try {
     const data = await api(`${API}/documents/${docId}/chunks`);
-    // Built as nodes, not markup: PDF text must never be parsed as HTML.
+    // Built as nodes, never markup: PDF text must not be parsed as HTML.
     const frag = document.createDocumentFragment();
     for (const c of data.chunks) {
       const box = document.createElement("div");
@@ -552,13 +632,13 @@ $("toggleChunks").onclick = async () => {
     list.replaceChildren(frag);
     $("toggleChunks").textContent = "Hide chunks";
   } catch (e) {
-    list.innerHTML = "";
+    list.replaceChildren();
     $("toggleChunks").textContent = "Inspect chunks";
     showError(e.message);
   }
 };
 
-/* ---------------- chat ---------------- */
+/* ---------- chat ---------- */
 const thread = $("thread"), qBox = $("q");
 
 function addMsg(who, text, { citations = [], count = null, isError = false } = {}) {
@@ -566,15 +646,17 @@ function addMsg(who, text, { citations = [], count = null, isError = false } = {
   const wrap = document.createElement("div");
   wrap.className = `msg ${who}${isError ? " error" : ""}`;
 
-  const label = document.createElement("div");
-  label.className = "who";
-  label.textContent = who === "user" ? "You" : "KnowledgeAI";
+  const av = document.createElement("div");
+  av.className = "av";
+  av.textContent = who === "user" ? "You" : "K";
+
+  const col = document.createElement("div");
+  col.className = "col";
 
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   bubble.textContent = text;
-
-  wrap.append(label, bubble);
+  col.append(bubble);
 
   if (citations.length) {
     const box = document.createElement("div");
@@ -584,10 +666,10 @@ function addMsg(who, text, { citations = [], count = null, isError = false } = {
       chip.className = "cite";
       const id = document.createElement("b");
       id.textContent = c.source_id;
-      chip.append(id, ` page ${c.page_number} · chunk ${c.chunk_index}`);
+      chip.append(id, `page ${c.page_number} · chunk ${c.chunk_index}`);
       box.append(chip);
     }
-    wrap.append(box);
+    col.append(box);
   }
   if (count !== null) {
     const foot = document.createElement("div");
@@ -595,9 +677,10 @@ function addMsg(who, text, { citations = [], count = null, isError = false } = {
     foot.textContent = citations.length
       ? `${count} passages retrieved · ${citations.length} cited`
       : `${count} passages retrieved · no citations emitted`;
-    wrap.append(foot);
+    col.append(foot);
   }
 
+  wrap.append(av, col);
   thread.append(wrap);
   thread.scrollTop = thread.scrollHeight;
   return wrap;
@@ -612,13 +695,16 @@ async function ask() {
 
   const pending = document.createElement("div");
   pending.className = "msg bot";
-  const who = document.createElement("div");
-  who.className = "who";
-  who.textContent = "KnowledgeAI";
+  const av = document.createElement("div");
+  av.className = "av";
+  av.textContent = "K";
+  const col = document.createElement("div");
+  col.className = "col";
   const dots = document.createElement("div");
   dots.className = "bubble typing";
   dots.append(document.createElement("span"), document.createElement("span"), document.createElement("span"));
-  pending.append(who, dots);
+  col.append(dots);
+  pending.append(av, col);
   thread.append(pending);
   thread.scrollTop = thread.scrollHeight;
 
@@ -649,12 +735,9 @@ qBox.addEventListener("keydown", (e) => {
 });
 qBox.addEventListener("input", () => {
   qBox.style.height = "auto";
-  qBox.style.height = Math.min(qBox.scrollHeight, 132) + "px";
+  qBox.style.height = Math.min(qBox.scrollHeight, 130) + "px";
 });
-$("clear").onclick = () => {
-  thread.replaceChildren();
-  qBox.focus();
-};
+$("clear").onclick = () => { thread.replaceChildren(); qBox.focus(); };
 </script>
 </body>
 </html>
