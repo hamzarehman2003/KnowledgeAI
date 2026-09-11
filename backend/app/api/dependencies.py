@@ -30,6 +30,23 @@ def reset_lexical_index() -> None:
 
 
 @lru_cache(maxsize=1)
+def _cached_vector_store(host: str, port: int, collection_name: str) -> ChromaVectorStore:
+    """Reuse one ChromaDB client across requests.
+
+    Constructing `chromadb.HttpClient` is expensive: it performs a handshake and
+    fires anonymised telemetry over the network, which measured ~2.5s per call.
+    Rebuilding it per request put that on every single search.
+    """
+    return ChromaVectorStore(host=host, port=port, collection_name=collection_name)
+
+
+@lru_cache(maxsize=1)
+def _cached_embedder(base_url: str, model: str, batch_size: int) -> OllamaEmbeddingService:
+    """Reuse one Ollama client; constructing it per request costs ~0.14s."""
+    return OllamaEmbeddingService(base_url=base_url, model=model, batch_size=batch_size)
+
+
+@lru_cache(maxsize=1)
 def _cached_reranker(model_name: str, device: str | None, batch_size: int) -> CrossEncoderReranker:
     """Reuse one reranker across requests; the cross-encoder weights are ~1GB.
 
@@ -50,16 +67,16 @@ def build_retrieval_service() -> RetrievalService:
         if settings.reranking_enabled
         else None
     )
-    vector_store = ChromaVectorStore(
-        host=settings.chroma_host,
-        port=settings.chroma_port,
-        collection_name=settings.chroma_collection_name,
+    vector_store = _cached_vector_store(
+        settings.chroma_host,
+        settings.chroma_port,
+        settings.chroma_collection_name,
     )
     return RetrievalService(
-        embedder=OllamaEmbeddingService(
-            base_url=settings.ollama_base_url,
-            model=settings.ollama_embedding_model,
-            batch_size=settings.embedding_batch_size,
+        embedder=_cached_embedder(
+            settings.ollama_base_url,
+            settings.ollama_embedding_model,
+            settings.embedding_batch_size,
         ),
         vector_store=vector_store,
         distance_threshold=settings.retrieval_distance_threshold,
